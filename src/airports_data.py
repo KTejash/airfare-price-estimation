@@ -318,31 +318,3 @@ def get_pricing_breakdown(total_fare: float, flight_class: str, src_tier: str, d
         "Goods & Services Tax (GST)": round(gst_amount, 2),
         "Total Estimated Fare": round(total_fare, 2)
     }
-
-def get_nearby_airports(city_key: str, max_dist_km: float = 350.0, limit: int = 3):
-    """
-    Finds nearby commercial airports within max_dist_km radius of the given airport.
-    Useful for discovering alternative departure/arrival options and fare savings.
-    """
-    src = AIRPORTS.get(city_key)
-    if not src:
-        return []
-
-    nearby = []
-    for other_city, info in AIRPORTS.items():
-        if other_city == city_key:
-            continue
-        d = haversine_distance_km(src['lat'], src['lon'], info['lat'], info['lon'])
-        if d <= max_dist_km:
-            nearby.append({
-                'city': other_city,
-                'name': info['name'],
-                'code': info['code'],
-                'distance_km': d,
-                'tier': info['tier'],
-                'lat': info['lat'],
-                'lon': info['lon']
-            })
-
-    nearby.sort(key=lambda x: x['distance_km'])
-    return nearby[:limit]
