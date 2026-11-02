@@ -282,15 +282,106 @@ if btn_sidebar:
 # ─────────────────────────────────────────────────────────────
 #  ENHANCED FLIGHT SIMULATION MAP
 # ─────────────────────────────────────────────────────────────
-def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs):
-    lat1, lon1 = src_info['lat'], src_info['lon']
-    lat2, lon2 = dst_info['lat'], dst_info['lon']
-    mid_lat = (lat1 + lat2) / 2
-    mid_lon = (lon1 + lon2) / 2
-    min_lat = min(lat1, lat2) - 2.0
-    max_lat = max(lat1, lat2) + 2.0
-    min_lon = min(lon1, lon2) - 2.0
-    max_lon = max(lon1, lon2) + 2.0
+def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
+                               stopover_info=None):
+    lat1, lon1 = src_info["lat"], src_info["lon"]
+    lat2, lon2 = dst_info["lat"], dst_info["lon"]
+
+    # Tight adaptive bounding box
+    all_lats = [lat1, lat2]
+    all_lons = [lon1, lon2]
+    has_stop = stopover_info is not None
+    if has_stop:
+        all_lats.append(stopover_info["lat"])
+        all_lons.append(stopover_info["lon"])
+
+    span_lat = max(all_lats) - min(all_lats)
+    span_lon = max(all_lons) - min(all_lons)
+    pad_lat  = max(1.0, span_lat * 0.25)
+    pad_lon  = max(1.0, span_lon * 0.25)
+    min_lat  = min(all_lats) - pad_lat
+    max_lat  = max(all_lats) + pad_lat
+    min_lon  = min(all_lons) - pad_lon
+    max_lon  = max(all_lons) + pad_lon
+
+    if has_stop:
+        s = stopover_info
+        slat = s["lat"]; slon = s["lon"]
+        scode = s.get("code", "HUB")
+        sname = s.get("name", "Connecting Hub")
+        stier = s.get("tier", "Hub")
+        stop_js = f"""
+  // ── 1-STOP FLIGHT ──
+  var arc1 = arcPath([{slat_p},{slon_p}],[{slat2_p},{slon2_p}],60,0.18);
+  var arc2 = arcPath([{slat3_p},{slon3_p}],[{slat4_p},{slon4_p}],60,0.18);
+  var arc  = arc1.concat(arc2);
+  [arc1,arc2].forEach(function(a){{
+    L.polyline(a,{{color:'#38bdf8',weight:16,opacity:0.07}}).addTo(map);
+    L.polyline(a,{{color:'#38bdf8',weight:7, opacity:0.20}}).addTo(map);
+    L.polyline(a,{{color:'#fbbf24',weight:2.5,opacity:1,dashArray:'10 6'}}).addTo(map);
+  }});
+  var stopH=`<div style="position:relative;width:36px;height:36px;">
+    <div class="pulse-ring" style="background:#f59e0b;opacity:0.5;animation-delay:.2s;"></div>
+    <div class="pulse-ring" style="background:#f59e0b;opacity:0.3;animation-delay:.9s;"></div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      width:18px;height:18px;background:#f59e0b;border-radius:50%;
+      border:3px solid #fff;box-shadow:0 0 14px #f59e0b;"></div>
+  </div>`;
+  L.marker([{slat5_p},{slon5_p}],{{icon:L.divIcon({{html:stopH,className:'',iconSize:[36,36],iconAnchor:[18,18]}}),zIndexOffset:150}})
+    .addTo(map)
+    .bindPopup(`<b style="color:#f59e0b;font-size:14px;">&#x1F504; STOPOVER</b><br>
+      <b>{sname}</b><br>IATA:<b>{scode}</b> | Tier:{stier}<br>
+      <span style="color:#94a3b8;">~1.5-2 hr layover</span>`);
+  ['Leg&nbsp;1','Leg&nbsp;2'].forEach(function(lbl,i){{
+    var midPt=i===0?arc1[Math.floor(arc1.length/2)]:arc2[Math.floor(arc2.length/2)];
+    L.marker(midPt,{{icon:L.divIcon({{html:`<div style="background:rgba(10,15,30,0.88);color:#fbbf24;border:1.5px solid #fbbf24;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;pointer-events:none;">&#x2708; `+lbl+`</div>`,className:'',iconAnchor:[32,12]}}),interactive:false,zIndexOffset:400}}).addTo(map);
+  }});
+""".format(
+    slat_p=f"{lat1},{lon1}", slon_p=f"{slat},{slon}",
+    slat2_p=f"{lat1}", slon2_p="",
+    slat3_p="", slon3_p="",
+    slat4_p="", slon4_p="",
+    slat5_p=slat, slon5_p=slon,
+            )
+        # rebuild with correct values using simple format
+        stop_js = f"""
+  // 1-STOP FLIGHT: two arcs
+  var arc1 = arcPath([{lat1},{lon1}],[{slat},{slon}],60,0.18);
+  var arc2 = arcPath([{slat},{slon}],[{lat2},{lon2}],60,0.18);
+  var arc  = arc1.concat(arc2);
+  [arc1,arc2].forEach(function(a){{
+    L.polyline(a,{{color:'#38bdf8',weight:16,opacity:0.07}}).addTo(map);
+    L.polyline(a,{{color:'#38bdf8',weight:7, opacity:0.20}}).addTo(map);
+    L.polyline(a,{{color:'#fbbf24',weight:2.5,opacity:1.0,dashArray:'10 6'}}).addTo(map);
+  }});
+  var stopH=`<div style="position:relative;width:36px;height:36px;">
+    <div class="pulse-ring" style="background:#f59e0b;opacity:0.5;animation-delay:.2s;"></div>
+    <div class="pulse-ring" style="background:#f59e0b;opacity:0.3;animation-delay:.9s;"></div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      width:18px;height:18px;background:#f59e0b;border-radius:50%;
+      border:3px solid #fff;box-shadow:0 0 14px #f59e0b;"></div></div>`;
+  L.marker([{slat},{slon}],{{icon:L.divIcon({{html:stopH,className:'',iconSize:[36,36],iconAnchor:[18,18]}}),zIndexOffset:150}})
+    .addTo(map)
+    .bindPopup(`<b style="color:#f59e0b;font-size:14px;">STOPOVER</b><br>
+      <b>{sname}</b><br>IATA:<b>{scode}</b> | {stier}<br>
+      <span style="color:#94a3b8;">approx 1.5-2 hr layover</span>`);
+  ['Leg 1','Leg 2'].forEach(function(lbl,i){{
+    var midPt=i===0?arc1[Math.floor(arc1.length/2)]:arc2[Math.floor(arc2.length/2)];
+    L.marker(midPt,{{icon:L.divIcon({{html:`<div style="background:rgba(10,15,30,.9);color:#fbbf24;border:1.5px solid #fbbf24;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;pointer-events:none;">` + lbl + `</div>`,className:'',iconAnchor:[32,12]}}),interactive:false,zIndexOffset:400}}).addTo(map);
+  }});
+"""
+        info_stop = f"<div class='row' style='color:#f59e0b;'>&#x1F504; 1-Stop via {scode}</div>"
+    else:
+        stop_js = f"""
+  // DIRECT FLIGHT: single arc
+  var arc = arcPath([{lat1},{lon1}],[{lat2},{lon2}],100,0.20);
+  L.polyline(arc,{{color:'#38bdf8',weight:18,opacity:0.08}}).addTo(map);
+  L.polyline(arc,{{color:'#38bdf8',weight:8, opacity:0.22}}).addTo(map);
+  L.polyline(arc,{{color:'#fbbf24',weight:3, opacity:1.0,dashArray:'12 7'}}).addTo(map);
+  var mid=arc[Math.floor(arc.length/2)];
+  L.marker(mid,{{icon:L.divIcon({{html:`<div style="background:rgba(10,15,30,.88);color:#fbbf24;border:1.5px solid #fbbf24;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap;pointer-events:none;">&#x2708; {distance_km} km | {duration_hrs} hrs</div>`,className:'',iconAnchor:[80,12]}}),interactive:false,zIndexOffset:500}}).addTo(map);
+"""
+        info_stop = "<div class='row' style='color:#34d399;'>&#x2705; Direct non-stop</div>"
 
     html_code = f"""<!DOCTYPE html>
 <html>
@@ -299,214 +390,91 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs):
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-  * {{ box-sizing:border-box; margin:0; padding:0; }}
-  body {{ background:#0f172a; font-family:'Segoe UI',sans-serif; }}
-  #map {{
-    width:100%; height:480px;
-    border-radius:12px;
-    border:2px solid #1e40af;
-    box-shadow:0 8px 32px rgba(0,0,0,0.7);
-  }}
-  .info-box {{
-    position:absolute; bottom:16px; left:16px; z-index:1000;
-    background:rgba(10,15,30,0.93);
-    border:1px solid #1e40af; border-radius:10px;
-    padding:10px 14px; font-size:12px;
-    color:#f8fafc; min-width:170px;
-    backdrop-filter:blur(8px);
-    pointer-events:none;
-  }}
-  .info-box .row {{ margin:3px 0; }}
-  .info-box b {{ color:#38bdf8; }}
-
-  /* Leaflet overrides for dark theme */
-  .leaflet-popup-content-wrapper {{
-    background:#1e293b !important; color:#f8fafc !important;
-    border-radius:10px !important; border:1px solid #3b82f6 !important;
-    box-shadow:0 4px 24px rgba(0,0,0,0.6) !important;
-    font-size:13px !important;
-  }}
-  .leaflet-popup-content {{ color:#f8fafc !important; }}
-  .leaflet-popup-tip {{ background:#1e293b !important; }}
-  .leaflet-control-layers {{
-    background:rgba(10,15,30,0.92) !important;
-    border:1px solid #334155 !important;
-    border-radius:8px !important;
-    color:#f8fafc !important;
-  }}
-  .leaflet-control-layers-base label {{ color:#cbd5e1 !important; margin:3px 0; }}
-  .leaflet-control-zoom a {{
-    background:rgba(10,15,30,0.9) !important;
-    color:#38bdf8 !important; border:1px solid #334155 !important;
-  }}
-  .leaflet-bar a:hover {{ background:#1e3a5f !important; }}
-
-  /* Pulsing ring for markers */
-  @keyframes pulseRing {{
-    0%   {{ transform:scale(0.6); opacity:0.9; }}
-    70%  {{ transform:scale(1.8); opacity:0;   }}
-    100% {{ transform:scale(1.8); opacity:0;   }}
-  }}
-  .pulse-ring {{
-    border-radius:50%;
-    animation:pulseRing 2s ease-out infinite;
-    position:absolute; top:0; left:0; right:0; bottom:0;
-  }}
-  @keyframes planeFly {{
-    0%   {{ filter: drop-shadow(0 0 4px #fbbf24); }}
-    50%  {{ filter: drop-shadow(0 0 12px #fbbf24) drop-shadow(0 0 6px #f59e0b); }}
-    100% {{ filter: drop-shadow(0 0 4px #fbbf24); }}
-  }}
+  *{{box-sizing:border-box;margin:0;padding:0;}}
+  body{{background:#0f172a;font-family:Segoe UI,sans-serif;}}
+  #map{{width:100%;height:480px;border-radius:12px;border:2px solid #1e40af;box-shadow:0 8px 32px rgba(0,0,0,.7);}}
+  .info-box{{position:absolute;bottom:16px;left:16px;z-index:1000;background:rgba(10,15,30,.93);
+    border:1px solid #1e40af;border-radius:10px;padding:10px 14px;font-size:12px;
+    color:#f8fafc;min-width:180px;backdrop-filter:blur(8px);pointer-events:none;}}
+  .info-box b{{color:#38bdf8;}} .row{{margin:3px 0;}}
+  .leaflet-popup-content-wrapper{{background:#1e293b!important;color:#f8fafc!important;
+    border-radius:10px!important;border:1px solid #3b82f6!important;font-size:13px!important;}}
+  .leaflet-popup-content{{color:#f8fafc!important;}}
+  .leaflet-popup-tip{{background:#1e293b!important;}}
+  .leaflet-control-layers{{background:rgba(10,15,30,.92)!important;border:1px solid #334155!important;border-radius:8px!important;}}
+  .leaflet-control-layers-base label{{color:#cbd5e1!important;margin:3px 0;}}
+  .leaflet-control-zoom a{{background:rgba(10,15,30,.9)!important;color:#38bdf8!important;border:1px solid #334155!important;}}
+  .leaflet-bar a:hover{{background:#1e3a5f!important;}}
+  @keyframes pulseRing{{0%{{transform:scale(.6);opacity:.9;}}70%{{transform:scale(2);opacity:0;}}100%{{transform:scale(2);opacity:0;}}}}
+  .pulse-ring{{border-radius:50%;animation:pulseRing 2s ease-out infinite;position:absolute;top:0;left:0;right:0;bottom:0;}}
+  @keyframes planeFly{{0%{{filter:drop-shadow(0 0 5px #fbbf24);}}50%{{filter:drop-shadow(0 0 14px #fbbf24) drop-shadow(0 0 7px #f59e0b);}}100%{{filter:drop-shadow(0 0 5px #fbbf24);}}}}
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div class="info-box">
-  <div class="row">🛫 <b>{src_info['code']}</b> &rarr; <b>{dst_info['code']}</b></div>
-  <div class="row">📏 <b>{distance_km} km</b> great-circle</div>
-  <div class="row">⏱️ Est. <b>{duration_hrs} hrs</b></div>
-  <div class="row" style="color:#34d399;margin-top:5px;">✈ Flight simulation active</div>
+  <div class="row">&#x1F6EB; <b>{src_info["code"]}</b> &rarr; <b>{dst_info["code"]}</b></div>
+  <div class="row">&#x1F4CF; <b>{distance_km} km</b> great-circle</div>
+  <div class="row">&#x23F1; Est. <b>{duration_hrs} hrs</b></div>
+  {info_stop}
+  <div class="row" style="color:#94a3b8;font-size:11px;">&#x2708; Simulation active</div>
 </div>
 <script>
-  var map = L.map('map', {{
-    center: [{mid_lat}, {mid_lon}],
-    zoom: 5,
-    zoomControl: true,
-    attributionControl: false
-  }});
+  var map=L.map("map",{{zoomControl:true,attributionControl:false}});
+  var gSat=L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={{x}}&y={{y}}&z={{z}}",{{maxZoom:20}});
+  var gStr=L.tileLayer("https://mt1.google.com/vt/lyrs=m&x={{x}}&y={{y}}&z={{z}}",{{maxZoom:20}});
+  var gTer=L.tileLayer("https://mt1.google.com/vt/lyrs=p&x={{x}}&y={{y}}&z={{z}}",{{maxZoom:20}});
+  gSat.addTo(map);
+  L.control.layers({{"&#x1F6F0; Satellite":gSat,"&#x1F5FA; Streets":gStr,"&#x26F0; Terrain":gTer}},null,{{position:"topright",collapsed:false}}).addTo(map);
 
-  // ── Google Tile layers ──
-  var gSat = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={{x}}&y={{y}}&z={{z}}',
-    {{ maxZoom:20, attribution:'© Google Maps' }});
-  var gStreet = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={{x}}&y={{y}}&z={{z}}',
-    {{ maxZoom:20, attribution:'© Google Maps' }});
-  var gTerrain = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={{x}}&y={{y}}&z={{z}}',
-    {{ maxZoom:20, attribution:'© Google Maps' }});
+  // fitBounds with maxZoom:8 prevents zooming in too close on short routes
+  map.fitBounds([[{min_lat:.4f},{min_lon:.4f}],[{max_lat:.4f},{max_lon:.4f}]],{{padding:[55,55],maxZoom:8}});
 
-  gSat.addTo(map);  // default = satellite
-
-  var baseMaps = {{
-    "🛰️ Satellite (Hybrid)": gSat,
-    "🗺️ Streets":            gStreet,
-    "⛰️ Terrain":            gTerrain
-  }};
-  L.control.layers(baseMaps, null, {{ position:'topright', collapsed:false }}).addTo(map);
-
-  // ── Fit view ──
-  map.fitBounds([
-    [{min_lat}, {min_lon}],
-    [{max_lat}, {max_lon}]
-  ], {{ padding:[60,60] }});
-
-  // ── Great-circle curved arc (parabolic offset) ──
-  function arcPath(p1, p2, n, curvature) {{
-    var pts = [];
-    var dLat = p2[0]-p1[0], dLon = p2[1]-p1[1];
-    var dist = Math.sqrt(dLat*dLat + dLon*dLon);
-    for (var i=0; i<=n; i++) {{
-      var t  = i/n;
-      var lt = p1[0] + dLat*t;
-      var ln = p1[1] + dLon*t;
-      var off = Math.sin(t*Math.PI) * dist * curvature;
-      pts.push([ lt + (-dLon/dist)*off,  ln + (dLat/dist)*off ]);
-    }}
-    return pts;
+  function arcPath(p1,p2,n,c){{
+    var pts=[],dLat=p2[0]-p1[0],dLon=p2[1]-p1[1],dist=Math.sqrt(dLat*dLat+dLon*dLon);
+    for(var i=0;i<=n;i++){{var t=i/n,lt=p1[0]+dLat*t,ln=p1[1]+dLon*t,off=Math.sin(t*Math.PI)*dist*c;
+      pts.push([lt+(-dLon/dist)*off,ln+(dLat/dist)*off]);}}return pts;
   }}
 
-  var arc = arcPath([{lat1},{lon1}], [{lat2},{lon2}], 100, 0.20);
+  {stop_js}
 
-  // Outermost glow (wide, very transparent)
-  L.polyline(arc, {{ color:'#38bdf8', weight:18, opacity:0.08 }}).addTo(map);
-  // Middle glow
-  L.polyline(arc, {{ color:'#38bdf8', weight:8,  opacity:0.22 }}).addTo(map);
-  // Bright dashed core flight path
-  L.polyline(arc, {{
-    color:'#fbbf24', weight:3, opacity:1.0,
-    dashArray:'12 7'
-  }}).addTo(map);
+  // Origin (cyan pulse)
+  var oH=`<div style="position:relative;width:36px;height:36px;">
+    <div class="pulse-ring" style="background:#38bdf8;opacity:.55;"></div>
+    <div class="pulse-ring" style="background:#38bdf8;opacity:.3;animation-delay:.7s;"></div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      width:18px;height:18px;background:#38bdf8;border-radius:50%;
+      border:3px solid #fff;box-shadow:0 0 14px #38bdf8;"></div></div>`;
+  L.marker([{lat1},{lon1}],{{icon:L.divIcon({{html:oH,className:"",iconSize:[36,36],iconAnchor:[18,18]}}),zIndexOffset:200}})
+    .addTo(map).bindPopup(`<b style="color:#38bdf8;font-size:14px;">&#x1F6EB; DEPARTURE</b><br>
+      <b>{src_info["name"]}</b><br>IATA:<b>{src_info["code"]}</b> Tier:{src_info["tier"]}<br>
+      <span style="color:#94a3b8;">{lat1:.4f}N {lon1:.4f}E</span>`);
 
-  // ── Origin pulsing marker ──
-  var originHtml = `
-    <div style="position:relative;width:34px;height:34px;">
-      <div class="pulse-ring" style="background:#38bdf8;opacity:0.5;"></div>
-      <div class="pulse-ring" style="background:#38bdf8;opacity:0.3;
-           animation-delay:0.6s;"></div>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-                  width:18px;height:18px;background:#38bdf8;border-radius:50%;
-                  border:3px solid #fff;
-                  box-shadow:0 0 12px #38bdf8, 0 0 4px #38bdf8;"></div>
-    </div>`;
-  var originIcon = L.divIcon({{
-    html: originHtml, className:'', iconSize:[34,34], iconAnchor:[17,17]
-  }});
-  L.marker([{lat1},{lon1}], {{icon:originIcon, zIndexOffset:200}})
-    .addTo(map)
-    .bindPopup(`
-      <b style="color:#38bdf8;font-size:14px;">🛫 DEPARTURE</b><br>
-      <b>{src_info['name']}</b><br>
-      IATA: <b>{src_info['code']}</b> &nbsp;|&nbsp; Tier: {src_info['tier']}<br>
-      <span style="color:#94a3b8;">{lat1:.4f}°N, {lon1:.4f}°E</span>
-    `);
+  // Destination (red pulse)
+  var dH=`<div style="position:relative;width:36px;height:36px;">
+    <div class="pulse-ring" style="background:#f43f5e;opacity:.55;animation-delay:.4s;"></div>
+    <div class="pulse-ring" style="background:#f43f5e;opacity:.3;animation-delay:1.1s;"></div>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      width:18px;height:18px;background:#f43f5e;border-radius:50%;
+      border:3px solid #fff;box-shadow:0 0 14px #f43f5e;"></div></div>`;
+  L.marker([{lat2},{lon2}],{{icon:L.divIcon({{html:dH,className:"",iconSize:[36,36],iconAnchor:[18,18]}}),zIndexOffset:200}})
+    .addTo(map).bindPopup(`<b style="color:#f43f5e;font-size:14px;">&#x1F6EC; ARRIVAL</b><br>
+      <b>{dst_info["name"]}</b><br>IATA:<b>{dst_info["code"]}</b> Tier:{dst_info["tier"]}<br>
+      <span style="color:#94a3b8;">{lat2:.4f}N {lon2:.4f}E</span>`);
 
-  // ── Destination pulsing marker ──
-  var destHtml = `
-    <div style="position:relative;width:34px;height:34px;">
-      <div class="pulse-ring" style="background:#f43f5e;opacity:0.5;animation-delay:0.4s;"></div>
-      <div class="pulse-ring" style="background:#f43f5e;opacity:0.3;animation-delay:1s;"></div>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-                  width:18px;height:18px;background:#f43f5e;border-radius:50%;
-                  border:3px solid #fff;
-                  box-shadow:0 0 12px #f43f5e, 0 0 4px #f43f5e;"></div>
-    </div>`;
-  var destIcon = L.divIcon({{
-    html: destHtml, className:'', iconSize:[34,34], iconAnchor:[17,17]
-  }});
-  L.marker([{lat2},{lon2}], {{icon:destIcon, zIndexOffset:200}})
-    .addTo(map)
-    .bindPopup(`
-      <b style="color:#f43f5e;font-size:14px;">🛬 ARRIVAL</b><br>
-      <b>{dst_info['name']}</b><br>
-      IATA: <b>{dst_info['code']}</b> &nbsp;|&nbsp; Tier: {dst_info['tier']}<br>
-      <span style="color:#94a3b8;">{lat2:.4f}°N, {lon2:.4f}°E</span>
-    `);
-
-  // ── Animated airplane along the arc ──
-  var planeHtml = `
-    <div style="font-size:28px;line-height:1;
-                animation:planeFly 1.5s ease-in-out infinite;
-                transform:rotate(45deg);">✈️</div>`;
-  var planeIcon = L.divIcon({{
-    html: planeHtml, className:'', iconSize:[30,30], iconAnchor:[15,15]
-  }});
-  var planeMkr = L.marker(arc[0], {{icon:planeIcon, zIndexOffset:1000}}).addTo(map);
-
-  // Animate along arc — forward then reset
-  var step = 0;
-  (function animatePlane() {{
-    step = (step + 1) % arc.length;
-    planeMkr.setLatLng(arc[step]);
-    // Slow down at ends, speed up in middle for realistic feel
-    var delay = (step < 5 || step > arc.length-5) ? 160 : 75;
-    setTimeout(animatePlane, delay);
+  // Animated plane
+  var planeMkr=L.marker(arc[0],{{icon:L.divIcon({{
+    html:`<div style="font-size:28px;line-height:1;animation:planeFly 1.5s ease-in-out infinite;transform:rotate(45deg);">&#x2708;&#xFE0F;</div>`,
+    className:"",iconSize:[30,30],iconAnchor:[15,15]}}),zIndexOffset:1000}}).addTo(map);
+  var step=0;
+  (function fly(){{step=(step+1)%arc.length;planeMkr.setLatLng(arc[step]);
+    setTimeout(fly,(step<5||step>arc.length-5)?170:72);
   }})();
-
-  // ── Midpoint distance label ──
-  var mid = arc[Math.floor(arc.length/2)];
-  var midIcon = L.divIcon({{
-    html: `<div style="background:rgba(10,15,30,0.88);color:#fbbf24;
-                border:1.5px solid #fbbf24;border-radius:6px;
-                padding:4px 10px;font-size:11px;font-weight:700;
-                white-space:nowrap;pointer-events:none;
-                box-shadow:0 2px 8px rgba(0,0,0,0.5);">
-                ✈ {distance_km} km &nbsp;|&nbsp; {duration_hrs} hrs flight
-           </div>`,
-    className:'', iconAnchor:[80,12]
-  }});
-  L.marker(mid, {{icon:midIcon, interactive:false, zIndexOffset:500}}).addTo(map);
 </script>
 </body>
 </html>"""
     return html_code
+
 
 
 # ─────────────────────────────────────────────────────────────
@@ -1017,9 +985,18 @@ else:
         with gm_col2:
             st.link_button("🌐 Open in Google Maps", gmaps_url, use_container_width=True)
 
+        # Resolve stopover hub airport if flight has 1 stop
+        stopover_info = None
+        if route_info.get('rec_stops') == 'one':
+            for hub_key in [route_info.get('proxy_src'), route_info.get('proxy_dst')]:
+                if hub_key and hub_key in AIRPORTS and hub_key not in (origin_city, dest_city):
+                    stopover_info = AIRPORTS[hub_key]
+                    break
+
         map_html = generate_google_maps_html(
             AIRPORTS[origin_city], AIRPORTS[dest_city],
-            route_info['distance_km'], route_info['est_duration']
+            route_info['distance_km'], route_info['est_duration'],
+            stopover_info=stopover_info
         )
         components.html(map_html, height=500, scrolling=False)
 
