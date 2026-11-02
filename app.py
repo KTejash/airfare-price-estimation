@@ -556,7 +556,7 @@ else:
             )
             st.plotly_chart(fig_curve, use_container_width=True)
 
-            # Download Itinerary Button (Executive PDF Report)
+            # Download Itinerary Button (Executive PDF Report Only)
             st.markdown("---")
             pdf_bytes = generate_flight_quotation_pdf(
                 origin_city=origin_city,
@@ -574,37 +574,15 @@ else:
                 advisory=advisory
             )
 
-            dcol1, dcol2 = st.columns([2.5, 1.5])
-            with dcol1:
-                st.download_button(
-                    label="📄 Download Official Airfare Quotation (Executive PDF Report)",
-                    data=pdf_bytes,
-                    file_name=f"Flight_Quotation_{AIRPORTS[origin_city]['code']}_{AIRPORTS[dest_city]['code']}.pdf",
-                    mime="application/pdf",
-                    type="primary",
-                    use_container_width=True
-                )
-            with dcol2:
-                # Text version as secondary option
-                itinerary_text = f"""=====================================================
-AIRFARE ESTIMATION & QUOTATION INVOICE (SIH 2026 - SIH26056)
-=====================================================
-Journey: {origin_city} ({AIRPORTS[origin_city]['code']}) -> {dest_city} ({AIRPORTS[dest_city]['code']})
-Airline Carrier: {selected_airline} | Class: {flight_class}
-Distance: {route_info['distance_km']} km | Duration: {route_info['est_duration']} hrs
-Advance Booking Window: {days_left} days prior to departure
-TOTAL ESTIMATED FARE: INR {fare_val:,.2f}
-ESTIMATED RANGE (68% CI): INR {max(1500, fare_val - 1819):,.0f} - INR {fare_val + 1819:,.0f}
-=====================================================
-"""
-                st.download_button(
-                    label="📝 Download Plain Text Summary",
-                    data=itinerary_text,
-                    file_name=f"Flight_Quote_{AIRPORTS[origin_city]['code']}_{AIRPORTS[dest_city]['code']}.txt",
-                    mime="text/plain",
-                    use_container_width=True
-                )
-            st.caption("💡 The official PDF report is universally compatible across mobile phones, tablets, and desktop computers. It contains the official SIH26056 header, complete itinerary, itemized component bill, ML accuracy verification, and yield management advisory.")
+            st.download_button(
+                label="📄 Download Official Airfare Quotation (Executive PDF Report)",
+                data=pdf_bytes,
+                file_name=f"Flight_Quotation_{AIRPORTS[origin_city]['code']}_{AIRPORTS[dest_city]['code']}.pdf",
+                mime="application/pdf",
+                type="primary",
+                use_container_width=True
+            )
+            st.caption("💡 Official 1-Page PDF Quotation universally compatible with all phones, tablets, and computers. Contains verified flight specs, itemized cost breakdown, and AI valuation.")
 
     # ==================== TAB 2: MULTI-AIRLINE PRICE MATRIX ====================
     with tab_multi:
