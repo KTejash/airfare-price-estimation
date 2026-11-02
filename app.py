@@ -626,24 +626,93 @@ else:
                     )
 
                     breakdown_items = [
-                        ("Base Airfare (Operations & Fleet Margin)",
-                         breakdown["Base Fare"], "#38bdf8"),
-                        ("Fuel & Dynamic Demand Surcharge (YQ)",
-                         breakdown["Fuel & Dynamic Surcharge (YQ)"], "#fbbf24"),
-                        ("Airport Development Fee (UDF/PSF/ASF)",
-                         breakdown["Airport Development Fee (UDF/PSF)"], "#34d399"),
-                        ("Statutory Goods & Services Tax (GST)",
-                         breakdown["Goods & Services Tax (GST)"], "#c084fc"),
+                        ("Base Airfare", "Operations & Fleet Margin",
+                         breakdown["Base Fare"], "#38bdf8", "🔵"),
+                        ("Fuel Surcharge (YQ)", "Dynamic Demand Surcharge",
+                         breakdown["Fuel & Dynamic Surcharge (YQ)"], "#fbbf24", "🟡"),
+                        ("Airport Fees (UDF/PSF)", "Airport Development Fee + ASF",
+                         breakdown["Airport Development Fee (UDF/PSF)"], "#34d399", "🟢"),
+                        ("Statutory GST", "Goods & Services Tax on Aviation",
+                         breakdown["Goods & Services Tax (GST)"], "#c084fc", "🟣"),
                     ]
 
-                    for label, amt, col_code in breakdown_items:
+                    # ── Custom HTML linear progress bars (color-matched, animated) ──
+                    bars_html = "<div style='margin-top:10px;'>"
+                    for short_label, desc, amt, col_code, emoji in breakdown_items:
                         b_pct = (amt / fare_val) * 100
-                        st.markdown(
-                            f"<span style='color:{col_code}; font-weight:700;'>●</span> "
-                            f"**{label}:** `₹ {amt:,.2f}` *({b_pct:.1f}%)*",
-                            unsafe_allow_html=True
-                        )
-                        st.progress(min(1.0, max(0.0, b_pct / 100)))
+                        bars_html += f"""
+                        <div style="margin-bottom:18px;">
+                            <div style="display:flex; justify-content:space-between;
+                                        align-items:baseline; margin-bottom:6px;">
+                                <div>
+                                    <span style="color:{col_code}; font-size:15px;">{emoji}</span>
+                                    <span style="color:#f8fafc; font-weight:700;
+                                                 font-size:13px; margin-left:4px;">
+                                        {short_label}
+                                    </span>
+                                    <span style="color:#64748b; font-size:11px;
+                                                 margin-left:6px;">— {desc}</span>
+                                </div>
+                                <div style="text-align:right; min-width:110px;">
+                                    <span style="color:{col_code}; font-weight:800;
+                                                 font-size:14px;">₹ {amt:,.0f}</span>
+                                    <span style="color:#64748b; font-size:11px;
+                                                 margin-left:4px;">({b_pct:.1f}%)</span>
+                                </div>
+                            </div>
+                            <div style="background:#0f172a; border-radius:6px;
+                                        height:10px; width:100%; overflow:hidden;
+                                        border:1px solid #1e293b;">
+                                <div style="
+                                    height:100%;
+                                    width:{b_pct:.2f}%;
+                                    background:linear-gradient(90deg, {col_code}cc, {col_code});
+                                    border-radius:6px;
+                                    box-shadow: 0 0 8px {col_code}88;
+                                    animation: growBar 1.2s ease-out forwards;
+                                    transform-origin: left;
+                                "></div>
+                            </div>
+                        </div>"""
+                    bars_html += "</div>"
+
+                    # Stacked bar showing all components together
+                    stack_parts = ""
+                    for short_label, desc, amt, col_code, emoji in breakdown_items:
+                        b_pct = (amt / fare_val) * 100
+                        stack_parts += f"""
+                        <div title="{short_label}: ₹{amt:,.0f} ({b_pct:.1f}%)"
+                             style="width:{b_pct:.2f}%; height:100%;
+                                    background:{col_code}; transition:width 0.5s;"></div>"""
+
+                    bars_html += f"""
+                    <div style="margin:14px 0 8px 0;">
+                        <div style="color:#64748b; font-size:11px; font-weight:600;
+                                    margin-bottom:5px; letter-spacing:0.5px;">
+                            COMBINED FARE COMPOSITION
+                        </div>
+                        <div style="display:flex; height:16px; border-radius:8px;
+                                    overflow:hidden; border:1px solid #1e293b;
+                                    box-shadow:0 2px 8px rgba(0,0,0,0.4);">
+                            {stack_parts}
+                        </div>
+                        <div style="display:flex; gap:16px; margin-top:7px; flex-wrap:wrap;">"""
+
+                    for short_label, _, _, col_code, emoji in breakdown_items:
+                        bars_html += f"""
+                            <span style="font-size:11px; color:#94a3b8;">
+                                <span style="color:{col_code};">■</span> {short_label}
+                            </span>"""
+                    bars_html += "</div></div>"
+
+                    st.markdown(f"""
+                    <style>
+                    @keyframes growBar {{
+                        from {{ width: 0%; }}
+                    }}
+                    </style>
+                    {bars_html}
+                    """, unsafe_allow_html=True)
 
                     st.markdown("---")
                     st.markdown(
