@@ -23,7 +23,7 @@ import plotly.graph_objects as go
 
 # Ensure src modules can be resolved
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
-from airports_data import AIRPORTS, METRO_HUBS, get_route_details
+from airports_data import AIRPORTS, METRO_HUBS, get_route_details, get_nearby_airports
 from pricing_engine import (
     CARRIERS,
     load_inference_pipeline,
@@ -269,6 +269,25 @@ dest_selection = st.sidebar.selectbox(
     index=dest_default_idx
 )
 dest_city = label_to_city[dest_selection]
+
+# ── Nearby Airport Discovery ──
+nearby_origin_list = get_nearby_airports(origin_city, max_dist_km=320, limit=2)
+nearby_dest_list = get_nearby_airports(dest_city, max_dist_km=320, limit=2)
+
+with st.sidebar.expander("📍 Nearby Alternative Airports", expanded=False):
+    st.markdown(f"**Near Origin ({origin_city}):**")
+    if nearby_origin_list:
+        for ap in nearby_origin_list:
+            st.caption(f"• **{ap['name']}** [{ap['code']}] — `{ap['distance_km']:.0f} km`")
+    else:
+        st.caption("No airports within 320 km.")
+
+    st.markdown(f"**Near Destination ({dest_city}):**")
+    if nearby_dest_list:
+        for ap in nearby_dest_list:
+            st.caption(f"• **{ap['name']}** [{ap['code']}] — `{ap['distance_km']:.0f} km`")
+    else:
+        st.caption("No airports within 320 km.")
 
 flight_class = st.sidebar.radio("💺 Cabin Class", ["Economy", "Business"], horizontal=True)
 carrier_names = ["All Airlines (Compare All)"] + [c["name"] for c in CARRIERS]
@@ -892,6 +911,35 @@ else:
                 yaxis=dict(gridcolor="#1e293b")
             )
             st.plotly_chart(fig_curve, use_container_width=True)
+
+            # ── Nearby Alternative Airport Fares ──
+            nearby_dests = get_nearby_airports(dest_city, max_dist_km=350, limit=2)
+            if nearby_dests:
+                st.markdown("---")
+                st.subheader("📍 Nearby Airport Route Alternatives & Potential Savings")
+                st.write("Compare flying to alternative airports within driving distance of your destination:")
+
+                alt_cols = st.columns(len(nearby_dests))
+                for idx, alt_ap in enumerate(nearby_dests):
+                    alt_city = alt_ap['city']
+                    alt_res = predict_single_flight(
+                        pipeline, origin_city, alt_city,
+                        eval_airline if is_compare_all else selected_airline,
+                        flight_class, dep_time, arr_time, days_left
+                    )
+                    alt_fare = alt_res['price']
+                    savings = fare_val - alt_fare
+                    with alt_cols[idx]:
+                        with st.container(border=True):
+                            st.markdown(f"**{origin_city} ➔ {alt_city} [{alt_ap['code']}]**")
+                            st.caption(f"{alt_ap['name']} • `{alt_ap['distance_km']:.0f} km` from {dest_city}")
+                            st.markdown(f"<div style='font-size:20px; font-weight:800; color:#38bdf8;'>₹ {alt_fare:,.0f}</div>", unsafe_allow_html=True)
+                            if savings > 200:
+                                st.markdown(f"<span style='color:#10b981; font-weight:700;'>🎉 Save ₹ {savings:,.0f} vs {dest_city}</span>", unsafe_allow_html=True)
+                            elif savings < -200:
+                                st.markdown(f"<span style='color:#f43f5e; font-size:12px;'>+ ₹ {abs(savings):,.0f} premium vs {dest_city}</span>", unsafe_allow_html=True)
+                            else:
+                                st.caption("Comparable fare to destination")
 
             # ── PDF Download ──
             st.markdown("---")
