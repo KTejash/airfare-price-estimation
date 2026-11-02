@@ -13,6 +13,7 @@ Features:
 import os
 import sys
 import json
+from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -31,6 +32,7 @@ from pricing_engine import (
     get_booking_advisory
 )
 from pdf_generator import generate_flight_quotation_pdf
+from realtime_pricing import fetch_realtime_flights, compute_market_variance
 
 # ----------------- PAGE CONFIG -----------------
 st.set_page_config(
@@ -561,22 +563,48 @@ else:
             breakdown = flight_result['breakdown']
             advisory = get_booking_advisory(days_left, fare_val, flight_class)
 
-            # ── Top metric banner ──
-            m_col1, m_col2, m_col3 = st.columns([1.5, 1.4, 1.3])
+            # ── Query Live Real-Time Market Data ──
+            live_data = fetch_realtime_flights(
+                AIRPORTS[origin_city]['code'], AIRPORTS[dest_city]['code'],
+                days_left=days_left, cabin_class=flight_class
+            )
+            live_price = live_data.get('lowest_price') if live_data.get('success') else None
+            variance_info = compute_market_variance(fare_val, live_price)
+
+            # ── Top metric banner (4 Columns with Real-Time Comparison) ──
+            m_col1, m_col2, m_col3, m_col4 = st.columns([1.3, 1.3, 1.3, 1.2])
 
             with m_col1:
                 with st.container(border=True):
                     st.metric(
-                        label=f"Predicted Airfare ({selected_airline} – {flight_class})",
+                        label=f"🤖 ML Predicted Airfare",
                         value=f"₹ {fare_val:,.0f}",
-                        delta=f"Booking Window: {days_left} days left"
+                        delta=f"{flight_class} • {days_left}d window"
                     )
                     st.caption(
-                        f"Estimated Range (±MAE): **₹ {max(1500, fare_val - 1819):,.0f}"
-                        f" – ₹ {fare_val + 1819:,.0f}**"
+                        f"Confidence Range (±MAE): **₹ {max(1500, fare_val - 1819):,.0f} – ₹ {fare_val + 1819:,.0f}**"
                     )
 
             with m_col2:
+                with st.container(border=True):
+                    if live_price:
+                        delta_str = f"{variance_info['variance_pct']:+.1f}% vs ML"
+                        st.metric(
+                            label="🔴 Live Market (Google Flights)",
+                            value=f"₹ {live_price:,.0f}",
+                            delta=delta_str,
+                            delta_color="inverse" if variance_info['variance_pct'] > 0 else "normal"
+                        )
+                        st.caption(f"🟢 Live OTA lowest for {live_data['date_str']}")
+                    else:
+                        st.metric(
+                            label="🔴 Live Market (Google Flights)",
+                            value="₹ Benchmark",
+                            delta="Live feed idle"
+                        )
+                        st.caption("No direct OTA seat on exact date")
+
+            with m_col3:
                 with st.container(border=True):
                     st.markdown(
                         f"<span style='color:{advisory['color']}; font-weight:800; font-size:15px;'>"
@@ -590,22 +618,19 @@ else:
                     )
                     st.caption(f"**Expected Trend:** {advisory['expected_trend']}")
 
-            with m_col3:
+            with m_col4:
                 with st.container(border=True):
                     st.markdown(
                         "<span style='color:#64748b; font-weight:700; font-size:11px;'>"
-                        "ROUTE SPECIFICATIONS</span>",
+                        "ROUTE & ACCURACY INDEX</span>",
                         unsafe_allow_html=True
                     )
                     st.markdown(
                         f"**{AIRPORTS[origin_city]['code']} ➔ {AIRPORTS[dest_city]['code']}**"
                         f" • `{route_info['distance_km']} km`"
                     )
-                    st.markdown(
-                        f"**Duration:** `{route_info['est_duration']} hrs`"
-                        f" • `{route_info['rec_stops'].replace('_',' ').capitalize()}` Stops"
-                    )
-                    st.caption(f"Departure: **{dep_time.replace('_', ' ')}**")
+                    st.markdown(f"**Status:** `{variance_info['status']}`")
+                    st.caption(f"Duration: **{route_info['est_duration']} hrs** • **{route_info['rec_stops'].capitalize()}** stop")
 
             st.markdown("---")
 
@@ -826,30 +851,34 @@ else:
     #  TAB 2 — MULTI-AIRLINE PRICE MATRIX (pure HTML cards)
     # ══════════════════════════════════════════════════════════
     with tab_multi:
-        st.subheader(f"🏢 Multi-Carrier Comparison: {origin_city} ➔ {dest_city}")
+        st.subheader(f"🏢 Multi-Carrier Pricing Matrix: {origin_city} ➔ {dest_city}")
         st.write(
-            f"Real-time estimated tariffs across all 6 major Indian carriers for "
-            f"**{flight_class} Class** with **{days_left} days left:**"
+            f"Compare real-time online flight tariffs directly against trained Supervised ML model baselines for "
+            f"**{flight_class} Class** with **{days_left} days left**:"
         )
 
-        sort_choice = st.radio(
-            "Sort Carriers By:",
-            ["Lowest Price First", "Shortest Duration", "Carrier Name"],
-            horizontal=True
-        )
+        src_iata = AIRPORTS[origin_city]['code']
+        dst_iata = AIRPORTS[dest_city]['code']
+        dep_date_obj = datetime.now() + timedelta(days=days_left)
+        dep_date_str = dep_date_obj.strftime("%Y-%m-%d")
+        live_gflights_url = f"https://www.google.com/travel/flights?q=Flights%20to%20{dst_iata}%20from%20{src_iata}%20on%20{dep_date_str}%20oneway"
 
+        # ── Toggle View Modes ──
+        mode_c1, mode_c2 = st.columns([3.2, 1.8])
+        with mode_c1:
+            pricing_source = st.radio(
+                "Select Pricing Intelligence Source:",
+                ["🔴 Live Real-Time Tariffs (Google Flights Feed)", "🤖 Supervised ML Model Benchmark"],
+                horizontal=True
+            )
+        with mode_c2:
+            st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
+            st.link_button("🌐 Open Live Search on Google Flights", live_gflights_url, use_container_width=True)
+
+        # Baseline ML multi-carrier comparison
         df_multi = get_multi_carrier_comparison(
             pipeline, origin_city, dest_city, flight_class, dep_time, arr_time, days_left
         )
-
-        if sort_choice == "Lowest Price First":
-            df_multi = df_multi.sort_values("Estimated_Fare").reset_index(drop=True)
-        elif sort_choice == "Shortest Duration":
-            df_multi = df_multi.sort_values("Duration_Hours").reset_index(drop=True)
-        else:
-            df_multi = df_multi.sort_values("Airline").reset_index(drop=True)
-
-        lowest_fare = df_multi['Estimated_Fare'].min()
 
         carrier_colors = {
             "IndiGo":        "#38bdf8",
@@ -857,106 +886,208 @@ else:
             "Vistara":       "#a855f7",
             "AirAsia India": "#fb923c",
             "SpiceJet":      "#fbbf24",
-            "GO FIRST":      "#34d399"
+            "GO FIRST":      "#34d399",
+            "Akasa Air":     "#c084fc",
+            "Air India Express": "#f97316"
         }
 
-        # ── Build a 3-column HTML grid via components.html (iframe — bypasses Streamlit HTML sanitizer) ──
-        cards_html_parts = []
-        for _, row in df_multi.iterrows():
-            ac = carrier_colors.get(row['Airline'], "#60a5fa")
-            is_best = (row['Estimated_Fare'] == lowest_fare)
-            border_col = "#10b981" if is_best else "#334155"
-            shadow = "0 0 20px rgba(16,185,129,0.30)" if is_best else "0 2px 10px rgba(0,0,0,0.4)"
-            badge = (
-                "<div style='background:#10b981;color:#fff;padding:3px 10px;"
-                "border-radius:10px;font-size:10px;font-weight:800;"
-                "letter-spacing:0.5px;white-space:nowrap;'>🏆 BEST FARE</div>"
-                if is_best else "<div></div>"
+        if "Live Real-Time" in pricing_source:
+            with st.spinner(f"Querying live online flights for {src_iata} ➔ {dst_iata} on {dep_date_str}..."):
+                live_res = fetch_realtime_flights(
+                    src_iata, dst_iata, days_left=days_left, cabin_class=flight_class
+                )
+
+            if live_res.get("success") and live_res.get("flights"):
+                # Top metrics
+                lm_col1, lm_col2, lm_col3 = st.columns(3)
+                with lm_col1:
+                    st.metric("Lowest Live Market Fare", f"₹ {live_res['lowest_price']:,}", "Live OTA Seat")
+                with lm_col2:
+                    st.metric("Live Flights Online", f"{live_res['flight_count']} options", f"Travel Date: {live_res['date_str']}")
+                with lm_col3:
+                    st.metric("Live Feed Source", "🟢 Google Flights API", "15m Smart Cache")
+
+                st.markdown("#### ✈️ Live Bookable Airline Tariffs (Cheapest Found per Carrier)")
+
+                # Build live carrier cards
+                live_cards_html = []
+                cheapest_live_price = live_res["lowest_price"]
+                for c_name, c_info in live_res["carrier_best"].items():
+                    c_col = carrier_colors.get(c_name, "#60a5fa")
+                    is_cheapest = (c_info["price"] == cheapest_live_price)
+                    border_c = "#10b981" if is_cheapest else "#334155"
+                    shadow_c = "0 0 18px rgba(16,185,129,0.3)" if is_cheapest else "0 2px 10px rgba(0,0,0,0.4)"
+                    badge_str = "<div style='background:#10b981;color:#fff;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:0.5px;white-space:nowrap;'>🏆 CHEAPEST LIVE</div>" if is_cheapest else "<div></div>"
+
+                    card = f"""
+                    <div style="background:#1e293b;border:1.5px solid {border_c};border-radius:12px;padding:16px;min-height:160px;box-shadow:{shadow_c};box-sizing:border-box;">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+                            <span style="color:{c_col};font-size:17px;font-weight:800;">{c_name}</span>
+                            {badge_str}
+                        </div>
+                        <div style="color:#64748b;font-size:11px;margin-bottom:8px;">{c_info['aircraft']} &bull; {c_info['stops_label']}</div>
+                        <div style="color:#38bdf8;font-size:26px;font-weight:800;margin-bottom:8px;">&#8377; {c_info['price']:,}</div>
+                        <div style="color:#94a3b8;font-size:12px;">&#9200; <b style="color:#e2e8f0;">{c_info['duration_hours']} hrs</b> &nbsp;|&nbsp; {c_info['departure_time']} &rarr; {c_info['arrival_time']}</div>
+                    </div>"""
+                    live_cards_html.append(card)
+
+                while len(live_cards_html) % 3 != 0:
+                    live_cards_html.append("<div></div>")
+
+                grid_live_doc = f"""<!DOCTYPE html>
+                <html><head><meta charset="utf-8"/><style>
+                *{{box-sizing:border-box;margin:0;padding:0;}}body{{background:transparent;font-family:'Segoe UI',sans-serif;}}
+                .g{{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}}
+                </style></head><body><div class="g">{''.join(live_cards_html)}</div></body></html>"""
+                components.html(grid_live_doc, height=200 if len(live_cards_html) <= 3 else 390, scrolling=False)
+
+                st.markdown("---")
+                st.markdown("#### 📊 Live Market Fare vs ML Prediction by Carrier")
+
+                comp_carrier_data = []
+                for _, ml_r in df_multi.iterrows():
+                    c_name = ml_r['Airline']
+                    ml_f = ml_r['Estimated_Fare']
+                    live_c_info = live_res["carrier_best"].get(c_name)
+                    live_f = live_c_info["price"] if live_c_info else None
+                    comp_carrier_data.append({
+                        "Airline": c_name,
+                        "ML Predicted Fare (₹)": ml_f,
+                        "Live Google Flights Fare (₹)": live_f
+                    })
+
+                # Also add any airlines in live that were not in ML dataset (e.g. Akasa Air, Air India Express)
+                for c_name, c_info in live_res["carrier_best"].items():
+                    if not any(row["Airline"] == c_name for row in comp_carrier_data):
+                        comp_carrier_data.append({
+                            "Airline": c_name,
+                            "ML Predicted Fare (₹)": None,
+                            "Live Google Flights Fare (₹)": c_info["price"]
+                        })
+
+                df_carrier_comp = pd.DataFrame(comp_carrier_data)
+
+                fig_live_vs_ml = go.Figure()
+                fig_live_vs_ml.add_trace(go.Bar(
+                    x=df_carrier_comp["Airline"], y=df_carrier_comp["ML Predicted Fare (₹)"],
+                    name="🤖 ML Prediction Baseline", marker_color="#3b82f6",
+                    text=df_carrier_comp["ML Predicted Fare (₹)"].apply(lambda x: f"₹{x:,.0f}" if pd.notnull(x) else "N/A"),
+                    textposition="auto"
+                ))
+                fig_live_vs_ml.add_trace(go.Bar(
+                    x=df_carrier_comp["Airline"], y=df_carrier_comp["Live Google Flights Fare (₹)"],
+                    name="🔴 Live Market (Google Flights)", marker_color="#10b981",
+                    text=df_carrier_comp["Live Google Flights Fare (₹)"].apply(lambda x: f"₹{x:,.0f}" if pd.notnull(x) else "No Live Seat"),
+                    textposition="auto"
+                ))
+                fig_live_vs_ml.update_layout(
+                    barmode="group",
+                    title=f"Live Online Airfares vs Supervised ML Estimation ({origin_city} ➔ {dest_city})",
+                    template="plotly_dark",
+                    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                    height=350, margin=dict(l=10, r=10, t=40, b=10),
+                    yaxis=dict(title="Fare (₹)", gridcolor="#1e293b"),
+                    xaxis=dict(gridcolor="#1e293b"),
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+                )
+                st.plotly_chart(fig_live_vs_ml, use_container_width=True)
+
+                st.markdown("#### 📋 Real-Time Flights Schedule (Online OTA Feed)")
+                df_flights_table = pd.DataFrame(live_res["flights"])
+                st.dataframe(
+                    df_flights_table[['airline', 'price', 'stops_label', 'duration_hours', 'departure_time', 'arrival_time', 'aircraft', 'source']]
+                    .rename(columns={
+                        'airline': 'Airline', 'price': 'Live_Price', 'stops_label': 'Stops',
+                        'duration_hours': 'Duration_Hrs', 'departure_time': 'Departure',
+                        'arrival_time': 'Arrival', 'aircraft': 'Aircraft', 'source': 'Source'
+                    }).style.format({'Live_Price': '₹{:,.0f}', 'Duration_Hrs': '{:.1f} hrs'})
+                    .highlight_min(subset=['Live_Price'], color='#064e3b'),
+                    use_container_width=True
+                )
+            else:
+                st.info(f"ℹ️ Google Flights returned: {live_res.get('error', 'No live flights found for this specific route.')} You can check the live search directly via the button above.")
+
+        else:
+            # ── Standard ML Matrix ──
+            sort_choice = st.radio(
+                "Sort Carriers By:",
+                ["Lowest Price First", "Shortest Duration", "Carrier Name"],
+                horizontal=True
             )
-            card = f"""
-            <div style="background:#1e293b;border:1.5px solid {border_col};
-                        border-radius:12px;padding:18px 16px;min-height:160px;
-                        box-shadow:{shadow};box-sizing:border-box;">
-                <div style="display:flex;justify-content:space-between;
-                            align-items:flex-start;margin-bottom:6px;gap:6px;">
-                    <div>
-                        <span style="color:{ac};font-size:17px;font-weight:800;
-                                     line-height:1.2;">{row['Airline']}</span>
-                        <span style="color:#64748b;font-size:12px;"> ({row['Code']})</span>
+
+            if sort_choice == "Lowest Price First":
+                df_multi = df_multi.sort_values("Estimated_Fare").reset_index(drop=True)
+            elif sort_choice == "Shortest Duration":
+                df_multi = df_multi.sort_values("Duration_Hours").reset_index(drop=True)
+            else:
+                df_multi = df_multi.sort_values("Airline").reset_index(drop=True)
+
+            lowest_fare = df_multi['Estimated_Fare'].min()
+
+            cards_html_parts = []
+            for _, row in df_multi.iterrows():
+                ac = carrier_colors.get(row['Airline'], "#60a5fa")
+                is_best = (row['Estimated_Fare'] == lowest_fare)
+                border_col = "#10b981" if is_best else "#334155"
+                shadow = "0 0 20px rgba(16,185,129,0.30)" if is_best else "0 2px 10px rgba(0,0,0,0.4)"
+                badge = (
+                    "<div style='background:#10b981;color:#fff;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:0.5px;white-space:nowrap;'>🏆 BEST FARE</div>"
+                    if is_best else "<div></div>"
+                )
+                card = f"""
+                <div style="background:#1e293b;border:1.5px solid {border_col};border-radius:12px;padding:18px 16px;min-height:160px;box-shadow:{shadow};box-sizing:border-box;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:6px;">
+                        <div>
+                            <span style="color:{ac};font-size:17px;font-weight:800;line-height:1.2;">{row['Airline']}</span>
+                            <span style="color:#64748b;font-size:12px;"> ({row['Code']})</span>
+                        </div>
+                        {badge}
                     </div>
-                    {badge}
-                </div>
-                <div style="color:#64748b;font-size:11px;margin-bottom:10px;">
-                    {row['Type']} &bull; {row['Badge']}
-                </div>
-                <div style="color:#38bdf8;font-size:26px;font-weight:800;margin-bottom:8px;">
-                    &#8377; {int(row['Estimated_Fare']):,}
-                </div>
-                <div style="color:#94a3b8;font-size:12px;">
-                    &#9200; <b style="color:#e2e8f0;">{row['Duration_Hours']} hrs</b>
-                    &nbsp;|&nbsp; Stops:
-                    <b style="color:#e2e8f0;">{row['Stops']}</b>
-                </div>
-            </div>"""
-            cards_html_parts.append(card)
+                    <div style="color:#64748b;font-size:11px;margin-bottom:10px;">{row['Type']} &bull; {row['Badge']}</div>
+                    <div style="color:#38bdf8;font-size:26px;font-weight:800;margin-bottom:8px;">&#8377; {int(row['Estimated_Fare']):,}</div>
+                    <div style="color:#94a3b8;font-size:12px;">&#9200; <b style="color:#e2e8f0;">{row['Duration_Hours']} hrs</b> &nbsp;|&nbsp; Stops: <b style="color:#e2e8f0;">{row['Stops']}</b></div>
+                </div>"""
+                cards_html_parts.append(card)
 
-        # Pad to multiple of 3
-        while len(cards_html_parts) % 3 != 0:
-            cards_html_parts.append("<div></div>")
+            while len(cards_html_parts) % 3 != 0:
+                cards_html_parts.append("<div></div>")
 
-        # Render inside a full HTML document via components.html (iframe)
-        grid_full_html = f"""<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8"/>
-<style>
-  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-  body {{ background: transparent; font-family: 'Segoe UI', Arial, sans-serif; padding: 4px 0; }}
-  .grid {{
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-  }}
-</style>
-</head>
-<body>
-  <div class="grid">
-    {''.join(cards_html_parts)}
-  </div>
-</body>
-</html>"""
-        components.html(grid_full_html, height=420, scrolling=False)
+            grid_full_html = f"""<!DOCTYPE html>
+            <html><head><meta charset="utf-8"/><style>
+            *{{box-sizing:border-box;margin:0;padding:0;}}body{{background:transparent;font-family:'Segoe UI',Arial,sans-serif;padding:4px 0;}}
+            .grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}}
+            </style></head><body><div class="grid">{''.join(cards_html_parts)}</div></body></html>"""
+            components.html(grid_full_html, height=420, scrolling=False)
 
-        st.markdown("---")
-        st.markdown("#### 📋 Comprehensive Carrier Comparison Table")
+            st.markdown("---")
+            st.markdown("#### 📋 Comprehensive Carrier Comparison Table")
 
-        # Interactive bar chart for carrier comparison
-        fig_compare = px.bar(
-            df_multi, x="Airline", y="Estimated_Fare",
-            color="Airline",
-            color_discrete_map=carrier_colors,
-            title=f"Fare Comparison: {origin_city} ➔ {dest_city} ({flight_class})",
-            text=df_multi['Estimated_Fare'].apply(lambda x: f"₹{x:,.0f}"),
-            template="plotly_dark"
-        )
-        fig_compare.update_traces(textposition="outside", textfont=dict(color="#f8fafc", size=11))
-        fig_compare.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-            height=320, showlegend=False,
-            margin=dict(l=10, r=10, t=40, b=10),
-            xaxis=dict(gridcolor="#1e293b"),
-            yaxis=dict(gridcolor="#1e293b", title="Estimated Fare (₹)")
-        )
-        st.plotly_chart(fig_compare, use_container_width=True)
+            fig_compare = px.bar(
+                df_multi, x="Airline", y="Estimated_Fare",
+                color="Airline",
+                color_discrete_map=carrier_colors,
+                title=f"Fare Comparison: {origin_city} ➔ {dest_city} ({flight_class})",
+                text=df_multi['Estimated_Fare'].apply(lambda x: f"₹{x:,.0f}"),
+                template="plotly_dark"
+            )
+            fig_compare.update_traces(textposition="outside", textfont=dict(color="#f8fafc", size=11))
+            fig_compare.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                height=320, showlegend=False,
+                margin=dict(l=10, r=10, t=40, b=10),
+                xaxis=dict(gridcolor="#1e293b"),
+                yaxis=dict(gridcolor="#1e293b", title="Estimated Fare (₹)")
+            )
+            st.plotly_chart(fig_compare, use_container_width=True)
 
-        st.dataframe(
-            df_multi.style.format({
-                'Estimated_Fare': '₹{:,.0f}',
-                'Duration_Hours': '{:.1f} hrs'
-            }).highlight_min(subset=['Estimated_Fare'], color='#064e3b')
-             .highlight_max(subset=['Estimated_Fare'], color='#4c0519'),
-            use_container_width=True
-        )
+            st.dataframe(
+                df_multi.style.format({
+                    'Estimated_Fare': '₹{:,.0f}',
+                    'Duration_Hours': '{:.1f} hrs'
+                }).highlight_min(subset=['Estimated_Fare'], color='#064e3b')
+                 .highlight_max(subset=['Estimated_Fare'], color='#4c0519'),
+                use_container_width=True
+            )
 
     # ══════════════════════════════════════════════════════════
     #  TAB 3 — INTERACTIVE FLIGHT MAP
