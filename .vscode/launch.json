@@ -1,0 +1,31 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "✈️ Launch Streamlit App",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "streamlit",
+            "args": [
+                "run",
+                "${workspaceFolder}/app.py"
+            ],
+            "jinja": true,
+            "justMyCode": true
+        },
+        {
+            "name": "⚙️ Run Model Training",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/train_models.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "📈 Generate Evaluation Plots",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/evaluate.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}

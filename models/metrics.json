@@ -1,0 +1,37 @@
+{
+    "Linear Regression (Baseline)": {
+        "MAE": 4549.5,
+        "RMSE": 6727.83,
+        "MAPE": 46.81,
+        "R2": 0.9122,
+        "Training_Time_s": 1.36
+    },
+    "Ridge Regression": {
+        "MAE": 4549.49,
+        "RMSE": 6727.83,
+        "MAPE": 46.81,
+        "R2": 0.9122,
+        "Training_Time_s": 0.79
+    },
+    "Decision Tree": {
+        "MAE": 2023.24,
+        "RMSE": 4035.4,
+        "MAPE": 13.15,
+        "R2": 0.9684,
+        "Training_Time_s": 2.26
+    },
+    "Random Forest": {
+        "MAE": 1819.17,
+        "RMSE": 3637.18,
+        "MAPE": 11.93,
+        "R2": 0.9743,
+        "Training_Time_s": 35.27
+    },
+    "HistGradientBoosting": {
+        "MAE": 2208.53,
+        "RMSE": 3773.38,
+        "MAPE": 17.01,
+        "R2": 0.9724,
+        "Training_Time_s": 9.95
+    }
+}
