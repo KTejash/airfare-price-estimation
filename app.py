@@ -32,7 +32,7 @@ from pricing_engine import (
     get_booking_advisory
 )
 from pdf_generator import generate_flight_quotation_pdf
-from realtime_pricing import fetch_realtime_flights, compute_market_variance
+from realtime_pricing import fetch_realtime_flights, compute_market_variance, get_selected_carrier_live_info
 
 # ----------------- PAGE CONFIG -----------------
 st.set_page_config(
@@ -568,7 +568,8 @@ else:
                 AIRPORTS[origin_city]['code'], AIRPORTS[dest_city]['code'],
                 days_left=days_left, cabin_class=flight_class
             )
-            live_price = live_data.get('lowest_price') if live_data.get('success') else None
+            carrier_live_match = get_selected_carrier_live_info(live_data, selected_airline)
+            live_price = carrier_live_match.get('live_price')
             variance_info = compute_market_variance(fare_val, live_price)
 
             # ── Top metric banner (4 Columns with Real-Time Comparison) ──
@@ -579,7 +580,7 @@ else:
                     st.metric(
                         label=f"🤖 ML Predicted Airfare",
                         value=f"₹ {fare_val:,.0f}",
-                        delta=f"{flight_class} • {days_left}d window"
+                        delta=f"{selected_airline} • {flight_class}"
                     )
                     st.caption(
                         f"Confidence Range (±MAE): **₹ {max(1500, fare_val - 1819):,.0f} – ₹ {fare_val + 1819:,.0f}**"
@@ -587,15 +588,25 @@ else:
 
             with m_col2:
                 with st.container(border=True):
-                    if live_price:
+                    if carrier_live_match.get("has_selected"):
                         delta_str = f"{variance_info['variance_pct']:+.1f}% vs ML"
                         st.metric(
-                            label="🔴 Live Market (Google Flights)",
+                            label=f"🔴 Live {selected_airline} (Google Flights)",
                             value=f"₹ {live_price:,.0f}",
                             delta=delta_str,
                             delta_color="inverse" if variance_info['variance_pct'] > 0 else "normal"
                         )
-                        st.caption(f"🟢 Live OTA lowest for {live_data['date_str']}")
+                        st.caption(f"🟢 Live {selected_airline} seat on {live_data['date_str']}")
+                    elif live_price:
+                        delta_str = f"{variance_info['variance_pct']:+.1f}% vs ML"
+                        lowest_c = carrier_live_match.get('lowest_carrier', 'OTA')
+                        st.metric(
+                            label=f"🔴 Route Lowest Live ({lowest_c})",
+                            value=f"₹ {live_price:,.0f}",
+                            delta=delta_str,
+                            delta_color="inverse" if variance_info['variance_pct'] > 0 else "normal"
+                        )
+                        st.caption(f"ℹ️ {selected_airline} has no published seat on this date")
                     else:
                         st.metric(
                             label="🔴 Live Market (Google Flights)",
@@ -907,6 +918,11 @@ else:
                 with lm_col3:
                     st.metric("Live Feed Source", "🟢 Google Flights API", "15m Smart Cache")
 
+                if selected_airline in live_res["carrier_best"]:
+                    st.success(f"✅ Found live flights for your preferred carrier: **{selected_airline}** at **₹ {live_res['carrier_best'][selected_airline]['price']:,}**")
+                else:
+                    st.info(f"ℹ️ **{selected_airline}** does not have published direct seats on Google Flights for **{dep_date_str}**. Showing available active carriers on this route below.")
+
                 st.markdown("#### ✈️ Live Bookable Airline Tariffs (Cheapest Found per Carrier)")
 
                 # Build live carrier cards
@@ -915,9 +931,23 @@ else:
                 for c_name, c_info in live_res["carrier_best"].items():
                     c_col = carrier_colors.get(c_name, "#60a5fa")
                     is_cheapest = (c_info["price"] == cheapest_live_price)
-                    border_c = "#10b981" if is_cheapest else "#334155"
-                    shadow_c = "0 0 18px rgba(16,185,129,0.3)" if is_cheapest else "0 2px 10px rgba(0,0,0,0.4)"
-                    badge_str = "<div style='background:#10b981;color:#fff;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:0.5px;white-space:nowrap;'>🏆 CHEAPEST LIVE</div>" if is_cheapest else "<div></div>"
+                    is_user_selected = (c_name == selected_airline)
+                    if is_user_selected and is_cheapest:
+                        border_c = "#38bdf8"
+                        shadow_c = "0 0 20px rgba(56,189,248,0.45)"
+                        badge_str = "<div style='background:#0284c7;color:#fff;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:0.5px;white-space:nowrap;'>⭐ YOUR AIRLINE (BEST)</div>"
+                    elif is_user_selected:
+                        border_c = "#38bdf8"
+                        shadow_c = "0 0 20px rgba(56,189,248,0.45)"
+                        badge_str = "<div style='background:#0284c7;color:#fff;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:0.5px;white-space:nowrap;'>⭐ YOUR AIRLINE</div>"
+                    elif is_cheapest:
+                        border_c = "#10b981"
+                        shadow_c = "0 0 18px rgba(16,185,129,0.3)"
+                        badge_str = "<div style='background:#10b981;color:#fff;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:0.5px;white-space:nowrap;'>🏆 CHEAPEST LIVE</div>"
+                    else:
+                        border_c = "#334155"
+                        shadow_c = "0 2px 10px rgba(0,0,0,0.4)"
+                        badge_str = "<div></div>"
 
                     card = f"""
                     <div style="background:#1e293b;border:1.5px solid {border_c};border-radius:12px;padding:16px;min-height:160px;box-shadow:{shadow_c};box-sizing:border-box;">

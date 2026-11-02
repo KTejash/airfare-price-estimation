@@ -12,6 +12,32 @@ from typing import Dict, List, Optional, Any
 _REALTIME_CACHE: Dict[str, Dict[str, Any]] = {}
 CACHE_TTL_SECONDS = 900
 
+CARRIER_ALIASES = {
+    "indigo": "IndiGo",
+    "air india": "Air India",
+    "air india express": "Air India Express",
+    "airasia": "AirAsia India",
+    "airasia india": "AirAsia India",
+    "aix connect": "AirAsia India",
+    "spicejet": "SpiceJet",
+    "vistara": "Vistara",
+    "go first": "GO FIRST",
+    "goair": "GO FIRST",
+    "akasa air": "Akasa Air",
+    "akasa": "Akasa Air"
+}
+
+
+def normalize_carrier_name(raw_name: str) -> str:
+    """Normalizes carrier string to standard airline names."""
+    if not raw_name:
+        return "Other Carrier"
+    cleaned = raw_name.strip().lower()
+    for alias, standard in CARRIER_ALIASES.items():
+        if alias in cleaned:
+            return standard
+    return raw_name.strip()
+
 
 def get_cache_key(src_code: str, dst_code: str, target_date: str, cabin_class: str) -> str:
     return f"{src_code}_{dst_code}_{target_date}_{cabin_class.lower()}"
@@ -70,7 +96,9 @@ def fetch_realtime_flights(
                     continue
 
                 airlines = getattr(f, "airlines", [])
-                primary_airline = airlines[0] if airlines else "Other Carrier"
+                raw_airline = airlines[0] if airlines else "Other Carrier"
+                primary_airline = normalize_carrier_name(raw_airline)
+
                 flight_legs = getattr(f, "flights", [])
                 stops_count = max(0, len(flight_legs) - 1)
                 total_duration_min = sum(getattr(leg, "duration", 0) for leg in flight_legs) if flight_legs else 0
@@ -93,6 +121,7 @@ def fetch_realtime_flights(
 
                 item = {
                     "airline": primary_airline,
+                    "raw_airline": raw_airline,
                     "price": price,
                     "stops": stops_count,
                     "stops_label": "Non-stop" if stops_count == 0 else f"{stops_count} stop",
@@ -156,6 +185,53 @@ def fetch_realtime_flights(
             "flights": [],
             "error": f"Live fetch exception: {str(e)}"
         }
+
+
+def get_selected_carrier_live_info(
+    live_data: Dict[str, Any],
+    selected_carrier: str
+) -> Dict[str, Any]:
+    """
+    Finds the live pricing info specifically for the user's selected carrier.
+    If the selected carrier has live flights, returns its data.
+    If not, returns the overall lowest market fare along with a clear indicator that the selected
+    carrier has no direct seat published for this date.
+    """
+    if not live_data or not live_data.get("success"):
+        return {
+            "has_selected": False,
+            "live_price": None,
+            "carrier_name": selected_carrier,
+            "is_specific_carrier": False,
+            "note": "Live feed unavailable"
+        }
+
+    carrier_best = live_data.get("carrier_best", {})
+    normalized_sel = normalize_carrier_name(selected_carrier)
+
+    # Check direct match
+    if normalized_sel in carrier_best:
+        info = carrier_best[normalized_sel]
+        return {
+            "has_selected": True,
+            "live_price": info["price"],
+            "carrier_name": normalized_sel,
+            "is_specific_carrier": True,
+            "flight_info": info,
+            "note": f"Live {normalized_sel} fare"
+        }
+
+    # If carrier not flying live on that date, return lowest available on route with note
+    lowest = live_data.get("lowest_price")
+    lowest_carrier = live_data.get("flights", [{}])[0].get("airline", "OTA Airline")
+    return {
+        "has_selected": False,
+        "live_price": lowest,
+        "carrier_name": normalized_sel,
+        "is_specific_carrier": False,
+        "lowest_carrier": lowest_carrier,
+        "note": f"{normalized_sel} has no live seat on this date (Showing route lowest: {lowest_carrier})"
+    }
 
 
 def compute_market_variance(ml_predicted: float, live_price: Optional[float]) -> Dict[str, Any]:
