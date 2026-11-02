@@ -251,8 +251,9 @@ dest_options = [c for c in city_names if c != origin_city]
 dest_city = st.sidebar.selectbox("🛬 Destination City / Airport", dest_options, index=min(default_dst_idx, len(dest_options) - 1))
 
 flight_class = st.sidebar.radio("💺 Cabin Class", ["Economy", "Business"], horizontal=True)
-carrier_names = [c["name"] for c in CARRIERS]
+carrier_names = ["All Airlines (Compare All)"] + [c["name"] for c in CARRIERS]
 selected_airline = st.sidebar.selectbox("✈️ Preferred Carrier", carrier_names, index=0)
+is_compare_all = (selected_airline == "All Airlines (Compare All)")
 
 col_s1, col_s2 = st.sidebar.columns(2)
 with col_s1:
@@ -555,11 +556,29 @@ else:
         if pipeline is None:
             st.error("ML model not loaded. Please ensure models/best_model.joblib exists.")
         else:
-            flight_result = predict_single_flight(
-                pipeline, origin_city, dest_city, selected_airline,
-                flight_class, dep_time, arr_time, days_left
-            )
-            fare_val = flight_result['price']
+            if is_compare_all:
+                df_all_pred = get_multi_carrier_comparison(
+                    pipeline, origin_city, dest_city, flight_class, dep_time, arr_time, days_left
+                )
+                best_carrier_row = df_all_pred.iloc[0]
+                eval_airline = best_carrier_row['Airline']
+                flight_result = predict_single_flight(
+                    pipeline, origin_city, dest_city, eval_airline,
+                    flight_class, dep_time, arr_time, days_left
+                )
+                fare_val = flight_result['price']
+                min_fare = df_all_pred['Estimated_Fare'].min()
+                max_fare = df_all_pred['Estimated_Fare'].max()
+                avg_fare = df_all_pred['Estimated_Fare'].mean()
+            else:
+                eval_airline = selected_airline
+                flight_result = predict_single_flight(
+                    pipeline, origin_city, dest_city, selected_airline,
+                    flight_class, dep_time, arr_time, days_left
+                )
+                fare_val = flight_result['price']
+                min_fare, max_fare, avg_fare = fare_val, fare_val, fare_val
+
             breakdown = flight_result['breakdown']
             advisory = get_booking_advisory(days_left, fare_val, flight_class)
 
@@ -577,18 +596,38 @@ else:
 
             with m_col1:
                 with st.container(border=True):
-                    st.metric(
-                        label=f"🤖 ML Predicted Airfare",
-                        value=f"₹ {fare_val:,.0f}",
-                        delta=f"{selected_airline} • {flight_class}"
-                    )
-                    st.caption(
-                        f"Confidence Range (±MAE): **₹ {max(1500, fare_val - 1819):,.0f} – ₹ {fare_val + 1819:,.0f}**"
-                    )
+                    if is_compare_all:
+                        st.metric(
+                            label="🤖 ML Predicted Range (All Carriers)",
+                            value=f"₹ {min_fare:,.0f} – ₹ {max_fare:,.0f}",
+                            delta=f"Best: {eval_airline} (Avg ₹{avg_fare:,.0f})"
+                        )
+                        st.caption(
+                            f"6-Carrier Fare Spread • Baseline: **₹ {fare_val:,.0f}**"
+                        )
+                    else:
+                        st.metric(
+                            label=f"🤖 ML Predicted Airfare",
+                            value=f"₹ {fare_val:,.0f}",
+                            delta=f"{selected_airline} • {flight_class}"
+                        )
+                        st.caption(
+                            f"Confidence Range (±MAE): **₹ {max(1500, fare_val - 1819):,.0f} – ₹ {fare_val + 1819:,.0f}**"
+                        )
 
             with m_col2:
                 with st.container(border=True):
-                    if carrier_live_match.get("has_selected"):
+                    if is_compare_all and live_price:
+                        delta_str = f"{variance_info['variance_pct']:+.1f}% vs Best ML"
+                        lowest_c = live_data.get('flights', [{}])[0].get('airline', 'OTA')
+                        st.metric(
+                            label=f"🔴 Best Live Market ({lowest_c})",
+                            value=f"₹ {live_price:,.0f}",
+                            delta=delta_str,
+                            delta_color="inverse" if variance_info['variance_pct'] > 0 else "normal"
+                        )
+                        st.caption(f"🟢 Lowest online fare on {live_data['date_str']} ({live_data.get('flight_count', 0)} flights)")
+                    elif carrier_live_match.get("has_selected"):
                         delta_str = f"{variance_info['variance_pct']:+.1f}% vs ML"
                         st.metric(
                             label=f"🔴 Live {selected_airline} (Google Flights)",
@@ -795,7 +834,7 @@ else:
             sim_prices = []
             for d in days_seq:
                 sim_res = predict_single_flight(
-                    pipeline, origin_city, dest_city, selected_airline,
+                    pipeline, origin_city, dest_city, eval_airline if is_compare_all else selected_airline,
                     flight_class, dep_time, arr_time, int(d)
                 )
                 sim_prices.append(sim_res['price'])
@@ -836,10 +875,11 @@ else:
 
             # ── PDF Download ──
             st.markdown("---")
+            pdf_carrier = f'{eval_airline} (Lowest Fare)' if is_compare_all else selected_airline
             pdf_bytes = generate_flight_quotation_pdf(
                 origin_city=origin_city, dest_city=dest_city,
                 src_info=AIRPORTS[origin_city], dst_info=AIRPORTS[dest_city],
-                selected_airline=selected_airline, flight_class=flight_class,
+                selected_airline=pdf_carrier, flight_class=flight_class,
                 dep_time=dep_time, arr_time=arr_time, days_left=days_left,
                 route_info=route_info, fare_val=fare_val,
                 breakdown=breakdown, advisory=advisory
