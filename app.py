@@ -865,36 +865,42 @@ else:
             "GO FIRST":      "#34d399"
         }
 
-        # ── Build a 3-column HTML grid — no st.columns nesting ──
+        # ── Build a 3-column HTML grid via components.html (iframe — bypasses Streamlit HTML sanitizer) ──
         cards_html_parts = []
         for _, row in df_multi.iterrows():
             ac = carrier_colors.get(row['Airline'], "#60a5fa")
             is_best = (row['Estimated_Fare'] == lowest_fare)
+            border_col = "#10b981" if is_best else "#334155"
+            shadow = "0 0 20px rgba(16,185,129,0.30)" if is_best else "0 2px 10px rgba(0,0,0,0.4)"
             badge = (
-                "<span style='background:#10b981;color:#fff;padding:3px 10px;"
+                "<div style='background:#10b981;color:#fff;padding:3px 10px;"
                 "border-radius:10px;font-size:10px;font-weight:800;"
-                "letter-spacing:0.5px;'>🏆 BEST FARE</span>"
-                if is_best else ""
+                "letter-spacing:0.5px;white-space:nowrap;'>🏆 BEST FARE</div>"
+                if is_best else "<div></div>"
             )
             card = f"""
-            <div style="background:#1e293b; border:1.5px solid {'#10b981' if is_best else '#334155'};
-                        border-radius:12px; padding:18px 16px; min-height:155px;
-                        box-shadow:{'0 0 18px rgba(16,185,129,0.25)' if is_best else '0 2px 8px rgba(0,0,0,0.3)'};
-                        transition:transform 0.2s;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+            <div style="background:#1e293b;border:1.5px solid {border_col};
+                        border-radius:12px;padding:18px 16px;min-height:160px;
+                        box-shadow:{shadow};box-sizing:border-box;">
+                <div style="display:flex;justify-content:space-between;
+                            align-items:flex-start;margin-bottom:6px;gap:6px;">
                     <div>
-                        <span style="color:{ac};font-size:17px;font-weight:800;">{row['Airline']}</span>
+                        <span style="color:{ac};font-size:17px;font-weight:800;
+                                     line-height:1.2;">{row['Airline']}</span>
                         <span style="color:#64748b;font-size:12px;"> ({row['Code']})</span>
                     </div>
                     {badge}
                 </div>
-                <div style="color:#64748b;font-size:11px;margin-bottom:10px;">{row['Type']} • {row['Badge']}</div>
+                <div style="color:#64748b;font-size:11px;margin-bottom:10px;">
+                    {row['Type']} &bull; {row['Badge']}
+                </div>
                 <div style="color:#38bdf8;font-size:26px;font-weight:800;margin-bottom:8px;">
-                    ₹ {int(row['Estimated_Fare']):,}
+                    &#8377; {int(row['Estimated_Fare']):,}
                 </div>
                 <div style="color:#94a3b8;font-size:12px;">
-                    ⏱️ <b style="color:#e2e8f0;">{row['Duration_Hours']} hrs</b> &nbsp;|&nbsp;
-                    Stops: <b style="color:#e2e8f0;">{row['Stops']}</b>
+                    &#9200; <b style="color:#e2e8f0;">{row['Duration_Hours']} hrs</b>
+                    &nbsp;|&nbsp; Stops:
+                    <b style="color:#e2e8f0;">{row['Stops']}</b>
                 </div>
             </div>"""
             cards_html_parts.append(card)
@@ -903,13 +909,28 @@ else:
         while len(cards_html_parts) % 3 != 0:
             cards_html_parts.append("<div></div>")
 
-        # Render as responsive CSS grid
-        grid_html = f"""
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:8px 0 16px 0;">
-            {''.join(cards_html_parts)}
-        </div>
-        """
-        st.markdown(grid_html, unsafe_allow_html=True)
+        # Render inside a full HTML document via components.html (iframe)
+        grid_full_html = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<style>
+  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+  body {{ background: transparent; font-family: 'Segoe UI', Arial, sans-serif; padding: 4px 0; }}
+  .grid {{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }}
+</style>
+</head>
+<body>
+  <div class="grid">
+    {''.join(cards_html_parts)}
+  </div>
+</body>
+</html>"""
+        components.html(grid_full_html, height=420, scrolling=False)
 
         st.markdown("---")
         st.markdown("#### 📋 Comprehensive Carrier Comparison Table")
