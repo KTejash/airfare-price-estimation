@@ -542,7 +542,7 @@ else:
         "🎯 Fare Prediction & Bill",
         "🏢 Multi-Airline Price Matrix",
         "🗺️ Interactive Flight Map",
-        "📊 Model Comparison (SIH Benchmark)",
+        "📊 AI Model Benchmark & Performance",
         "🔍 Feature Drivers & Intelligence"
     ])
 
@@ -1017,8 +1017,8 @@ else:
     #  TAB 4 — MODEL COMPARISON (SIH BENCHMARK)
     # ══════════════════════════════════════════════════════════
     with tab_benchmark:
-        st.subheader("📊 INT395 Supervised Learning Benchmark (SIH26056)")
-        st.write("Cross-algorithm benchmark evaluated on **300,153 validated flights** (80/20 partition):")
+        st.subheader("📊 Machine Learning Performance & Model Benchmark")
+        st.write("Comprehensive cross-algorithm performance benchmark evaluated on **300,153 validated flights** (80/20 train-test partition):")
 
         if metrics_dict:
             metrics_df = (
