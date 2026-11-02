@@ -242,13 +242,33 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-city_names = sorted(list(AIRPORTS.keys()))
-default_src_idx = city_names.index("Delhi") if "Delhi" in city_names else 0
-default_dst_idx = city_names.index("Mumbai") if "Mumbai" in city_names else 1
+def format_airport_label(city_key: str) -> str:
+    ap = AIRPORTS[city_key]
+    return f"{ap['name']} — {city_key} [{ap['code']}]"
 
-origin_city = st.sidebar.selectbox("🛫 Origin City / Airport", city_names, index=default_src_idx)
-dest_options = [c for c in city_names if c != origin_city]
-dest_city = st.sidebar.selectbox("🛬 Destination City / Airport", dest_options, index=min(default_dst_idx, len(dest_options) - 1))
+# Smart airport display list sorted by city
+airport_options = sorted([format_airport_label(c) for c in AIRPORTS.keys()])
+label_to_city = {format_airport_label(c): c for c in AIRPORTS.keys()}
+
+default_src_lbl = format_airport_label("Delhi") if "Delhi" in AIRPORTS else airport_options[0]
+default_dst_lbl = format_airport_label("Mumbai") if "Mumbai" in AIRPORTS else airport_options[1]
+
+origin_selection = st.sidebar.selectbox(
+    "🛫 Origin Airport (Name — City [IATA])",
+    airport_options,
+    index=airport_options.index(default_src_lbl)
+)
+origin_city = label_to_city[origin_selection]
+
+dest_airport_options = [lbl for lbl in airport_options if label_to_city[lbl] != origin_city]
+dest_default_idx = dest_airport_options.index(default_dst_lbl) if default_dst_lbl in dest_airport_options else 0
+
+dest_selection = st.sidebar.selectbox(
+    "🛬 Destination Airport (Name — City [IATA])",
+    dest_airport_options,
+    index=dest_default_idx
+)
+dest_city = label_to_city[dest_selection]
 
 flight_class = st.sidebar.radio("💺 Cabin Class", ["Economy", "Business"], horizontal=True)
 carrier_names = ["All Airlines (Compare All)"] + [c["name"] for c in CARRIERS]
