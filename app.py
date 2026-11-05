@@ -708,91 +708,103 @@ else:
 
                     breakdown_items = [
                         ("Base Airfare", "Operations & Fleet Margin",
-                         breakdown["Base Fare"], "#38bdf8", "🔵"),
+                         breakdown["Base Fare"], "#38bdf8", "🔵", "linear-gradient(90deg, #0284c7, #38bdf8)"),
                         ("Fuel Surcharge (YQ)", "Dynamic Demand Surcharge",
-                         breakdown["Fuel & Dynamic Surcharge (YQ)"], "#fbbf24", "🟡"),
+                         breakdown["Fuel & Dynamic Surcharge (YQ)"], "#fbbf24", "🟡", "linear-gradient(90deg, #d97706, #fbbf24)"),
                         ("Airport Fees (UDF/PSF)", "Airport Development Fee + ASF",
-                         breakdown["Airport Development Fee (UDF/PSF)"], "#34d399", "🟢"),
+                         breakdown["Airport Development Fee (UDF/PSF)"], "#34d399", "🟢", "linear-gradient(90deg, #059669, #34d399)"),
                         ("Statutory GST", "Goods & Services Tax on Aviation",
-                         breakdown["Goods & Services Tax (GST)"], "#c084fc", "🟣"),
+                         breakdown["Goods & Services Tax (GST)"], "#c084fc", "🟣", "linear-gradient(90deg, #7c3aed, #c084fc)"),
                     ]
 
                     # ── Custom HTML linear progress bars (color-matched, animated) ──
-                    bars_html = "<div style='margin-top:10px;'>"
-                    for short_label, desc, amt, col_code, emoji in breakdown_items:
+                    bars_list = ["<div style='margin-top:12px;'>"]
+                    for short_label, desc, amt, col_code, emoji, grad in breakdown_items:
                         b_pct = (amt / fare_val) * 100
-                        bars_html += f"""
-                        <div style="margin-bottom:18px;">
-                            <div style="display:flex; justify-content:space-between;
-                                        align-items:baseline; margin-bottom:6px;">
-                                <div>
-                                    <span style="color:{col_code}; font-size:15px;">{emoji}</span>
-                                    <span style="color:#f8fafc; font-weight:700;
-                                                 font-size:13px; margin-left:4px;">
-                                        {short_label}
-                                    </span>
-                                    <span style="color:#64748b; font-size:11px;
-                                                 margin-left:6px;">— {desc}</span>
-                                </div>
-                                <div style="text-align:right; min-width:110px;">
-                                    <span style="color:{col_code}; font-weight:800;
-                                                 font-size:14px;">₹ {amt:,.0f}</span>
-                                    <span style="color:#64748b; font-size:11px;
-                                                 margin-left:4px;">({b_pct:.1f}%)</span>
-                                </div>
-                            </div>
-                            <div style="background:#0f172a; border-radius:6px;
-                                        height:10px; width:100%; overflow:hidden;
-                                        border:1px solid #1e293b;">
-                                <div style="
-                                    height:100%;
-                                    width:{b_pct:.2f}%;
-                                    background:linear-gradient(90deg, {col_code}cc, {col_code});
-                                    border-radius:6px;
-                                    box-shadow: 0 0 8px {col_code}88;
-                                    animation: growBar 1.2s ease-out forwards;
-                                    transform-origin: left;
-                                "></div>
-                            </div>
-                        </div>"""
-                    bars_html += "</div>"
+                        bars_list.append(
+                            f"<div style='margin-bottom:16px;'>"
+                            f"<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;'>"
+                            f"<div>"
+                            f"<span style='color:{col_code}; font-size:15px; filter:drop-shadow(0 0 4px {col_code});'>{emoji}</span> "
+                            f"<span style='color:#f8fafc; font-weight:800; font-size:13.5px; margin-left:4px;'>{short_label}</span> "
+                            f"<span style='color:#94a3b8; font-size:11.5px; margin-left:6px;'>— {desc}</span>"
+                            f"</div>"
+                            f"<div style='text-align:right; min-width:115px;'>"
+                            f"<span style='color:{col_code}; font-weight:800; font-size:14.5px;'>₹ {amt:,.0f}</span> "
+                            f"<span style='color:#cbd5e1; font-weight:600; font-size:12px; margin-left:4px;'>({b_pct:.1f}%)</span>"
+                            f"</div>"
+                            f"</div>"
+                            f"<div style='background:rgba(15,23,42,0.85); border-radius:10px; height:12px; width:100%; overflow:hidden; border:1px solid rgba(56,189,248,0.25); box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);'>"
+                            f"<div style='height:100%; width:{b_pct:.2f}%; background:{grad}; border-radius:10px; box-shadow:0 0 12px {col_code}aa; animation:growBar 1.2s cubic-bezier(0.16,1,0.3,1) forwards; transform-origin:left;'></div>"
+                            f"</div>"
+                            f"</div>"
+                        )
+                    bars_list.append("</div>")
 
-                    # Stacked bar showing all components together
-                    stack_parts = ""
-                    for short_label, desc, amt, col_code, emoji in breakdown_items:
+                    # Combined fare composition stacked bar with glowing mixed gradient simulation
+                    stack_segments = []
+                    legend_chips = []
+                    for short_label, desc, amt, col_code, emoji, grad in breakdown_items:
                         b_pct = (amt / fare_val) * 100
-                        stack_parts += f"""
-                        <div title="{short_label}: ₹{amt:,.0f} ({b_pct:.1f}%)"
-                             style="width:{b_pct:.2f}%; height:100%;
-                                    background:{col_code}; transition:width 0.5s;"></div>"""
+                        pct_label = f"{b_pct:.0f}%" if b_pct >= 8 else ""
+                        stack_segments.append(
+                            f"<div title='{short_label}: ₹{amt:,.0f} ({b_pct:.1f}%)' "
+                            f"style='width:{b_pct:.2f}%; height:100%; background:{grad}; "
+                            f"display:flex; align-items:center; justify-content:center; "
+                            f"color:#ffffff; font-weight:800; font-size:11px; text-shadow:0 1px 2px rgba(0,0,0,0.8); "
+                            f"border-right:1.5px solid rgba(15,23,42,0.8);'>"
+                            f"{pct_label}</div>"
+                        )
+                        legend_chips.append(
+                            f"<div style='display:inline-flex; align-items:center; gap:6px; "
+                            f"background:rgba(30,41,59,0.85); border:1px solid {col_code}66; "
+                            f"border-radius:20px; padding:4px 11px; box-shadow:0 2px 6px rgba(0,0,0,0.35);'>"
+                            f"<span style='width:9px; height:9px; border-radius:50%; background:{col_code}; box-shadow:0 0 6px {col_code}; display:inline-block;'></span>"
+                            f"<span style='color:#e2e8f0; font-size:11.5px; font-weight:700;'>{short_label}</span>"
+                            f"<span style='color:{col_code}; font-size:11.5px; font-weight:800;'>₹{amt:,.0f}</span>"
+                            f"<span style='color:#94a3b8; font-size:10.5px;'>({b_pct:.1f}%)</span>"
+                            f"</div>"
+                        )
 
-                    bars_html += f"""
-                    <div style="margin:14px 0 8px 0;">
-                        <div style="color:#64748b; font-size:11px; font-weight:600;
-                                    margin-bottom:5px; letter-spacing:0.5px;">
-                            COMBINED FARE COMPOSITION
-                        </div>
-                        <div style="display:flex; height:16px; border-radius:8px;
-                                    overflow:hidden; border:1px solid #1e293b;
-                                    box-shadow:0 2px 8px rgba(0,0,0,0.4);">
-                            {stack_parts}
-                        </div>
-                        <div style="display:flex; gap:16px; margin-top:7px; flex-wrap:wrap;">"""
-
-                    for short_label, _, _, col_code, emoji in breakdown_items:
-                        bars_html += f"""
-                            <span style="font-size:11px; color:#94a3b8;">
-                                <span style="color:{col_code};">■</span> {short_label}
-                            </span>"""
-                    bars_html += "</div></div>"
+                    combined_html = (
+                        f"<div style='margin:20px 0 12px 0;'>"
+                        f"<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'>"
+                        f"<span style='color:#38bdf8; font-size:12px; font-weight:800; letter-spacing:0.8px;'>🧬 COMBINED FARE COMPOSITION & SIMULATION</span>"
+                        f"<span style='color:#94a3b8; font-size:11px; font-weight:600;'>100% Itemized Tariff Breakdown</span>"
+                        f"</div>"
+                        f"<div style='position:relative; height:26px; border-radius:14px; overflow:hidden; "
+                        f"border:2px solid #38bdf8; background:#0f172a; "
+                        f"box-shadow:0 4px 18px rgba(0,0,0,0.8), 0 0 14px rgba(56,189,248,0.4);'>"
+                        f"<div style='display:flex; width:100%; height:100%;'>"
+                        f"{''.join(stack_segments)}"
+                        f"</div>"
+                        f"<div class='shimmer-sweep'></div>"
+                        f"</div>"
+                        f"<div style='display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;'>"
+                        f"{''.join(legend_chips)}"
+                        f"</div>"
+                        f"</div>"
+                    )
 
                     st.markdown(f"""
                     <style>
                     @keyframes growBar {{
                         from {{ width: 0%; }}
                     }}
+                    @keyframes shimmerSweep {{
+                        0% {{ transform: translateX(-100%); }}
+                        100% {{ transform: translateX(200%); }}
+                    }}
+                    .shimmer-sweep {{
+                        position: absolute;
+                        top: 0; left: 0; width: 50%; height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+                        animation: shimmerSweep 3.2s infinite ease-in-out;
+                        pointer-events: none;
+                    }}
                     </style>
-                    {bars_html}
+                    {''.join(bars_list)}
+                    {combined_html}
                     """, unsafe_allow_html=True)
 
                     st.markdown("---")
@@ -858,29 +870,44 @@ else:
             fig_curve = px.line(
                 df_sim, x="Days Before Departure", y="Estimated Price (INR)",
                 markers=True,
-                title=f"Airfare Yield Curve: {origin_city} ➔ {dest_city} ({selected_airline} - {flight_class})",
+                title=f"Airfare Yield Curve & Price Simulation: {origin_city} ➔ {dest_city} ({selected_airline} - {flight_class})",
                 color_discrete_sequence=["#38bdf8"]
             )
+            fig_curve.update_traces(
+                fill='tozeroy',
+                fillcolor='rgba(56, 189, 248, 0.12)',
+                line=dict(color='#38bdf8', width=3.5, shape='spline'),
+                marker=dict(size=7, color='#fbbf24', line=dict(color='#0f172a', width=1.5)),
+                hovertemplate="<b>Day %{x}</b> before flight<br>Tariff: <b>₹%{y:,.0f}</b><extra></extra>"
+            )
             fig_curve.add_vline(
-                x=days_left, line_dash="dash", line_color="#f43f5e",
-                annotation_text=f"Selected: Day {days_left}",
-                annotation_font_color="#f43f5e"
+                x=days_left, line_dash="dash", line_color="#34d399", line_width=2.5,
+                annotation_text=f"✈ Booking: Day {days_left} (₹{fare_val:,.0f})",
+                annotation_font_color="#34d399",
+                annotation_font_size=12,
+                annotation_position="top right"
             )
             # Shade high-price zone (last 10 days)
             fig_curve.add_vrect(
                 x0=1, x1=10,
-                fillcolor="rgba(244,63,94,0.08)", line_width=0,
-                annotation_text="⚠️ Surge Zone", annotation_position="top left",
-                annotation_font_color="#f43f5e"
+                fillcolor="rgba(244,63,94,0.15)", line_width=1.5, line_color="rgba(244,63,94,0.45)",
+                annotation_text="🚨 Surge Zone (Days 1–10)", annotation_position="top left",
+                annotation_font_color="#f43f5e",
+                annotation_font_size=11
             )
-            fig_curve.update_xaxes(autorange="reversed", title="Days Before Departure")
-            fig_curve.update_yaxes(title="Estimated Airfare (₹)")
+            fig_curve.update_xaxes(
+                autorange="reversed", title="Days Before Departure (Decreasing ➔ Flight Day)",
+                gridcolor="#1e293b", tickfont=dict(color="#cbd5e1", size=11)
+            )
+            fig_curve.update_yaxes(
+                title="Estimated Airfare (₹)",
+                gridcolor="#1e293b", tickprefix="₹", tickfont=dict(color="#cbd5e1", size=11)
+            )
             fig_curve.update_layout(
-                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)", height=370,
-                margin=dict(l=20, r=20, t=40, b=20),
-                xaxis=dict(gridcolor="#1e293b"),
-                yaxis=dict(gridcolor="#1e293b")
+                template="plotly_dark", paper_bgcolor="rgba(15,23,42,0.6)",
+                plot_bgcolor="rgba(15,23,42,0.6)", height=390,
+                margin=dict(l=20, r=20, t=50, b=20),
+                hoverlabel=dict(bgcolor="#1e293b", font_size=12, font_family="Segoe UI")
             )
             st.plotly_chart(fig_curve, use_container_width=True)
 
