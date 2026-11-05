@@ -47,130 +47,172 @@ MODELS_DIR = os.path.join(BASE_DIR, "models")
 PLOTS_DIR = os.path.join(BASE_DIR, "plots")
 DATA_PATH = os.path.join(BASE_DIR, "data", "Clean_Dataset.csv")
 
-# ----------------- MEDIUM-DARK AVIATION THEME CSS -----------------
+# ----------------- FUTURISTIC DEEP-SPACE CYBER-AVIATION THEME CSS -----------------
 st.markdown("""
 <style>
-    /* Global medium-dark palette */
+    /* Futuristic Deep-Space Canvas with Ambient Cyan/Violet Flares */
     .stApp {
-        background-color: #111827;
-        color: #f1f5f9;
+        background: radial-gradient(circle at 12% 15%, rgba(14, 165, 233, 0.12) 0%, transparent 45%),
+                    radial-gradient(circle at 88% 85%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+                    radial-gradient(circle at 50% 50%, #050813 0%, #02050e 100%) !important;
+        background-attachment: fixed !important;
+        color: #f1f5f9 !important;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
     }
 
-    /* Typography */
+    /* Titanium Headings with Ambient Neon Glow */
     h1, h2, h3, h4, h5 {
         color: #f8fafc !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.3px !important;
+        text-shadow: 0 2px 14px rgba(56, 189, 248, 0.18) !important;
     }
     p, li, span, label {
         color: #cbd5e1 !important;
     }
 
-    /* Sidebar */
+    /* Futuristic Frosted Obsidian Sidebar */
     section[data-testid="stSidebar"] {
-        background-color: #0f172a !important;
-        border-right: 1px solid #1e3a5f;
+        background: linear-gradient(180deg, #030712 0%, #080e1d 50%, #030712 100%) !important;
+        border-right: 1px solid rgba(56, 189, 248, 0.22) !important;
+        box-shadow: 6px 0 32px rgba(0, 0, 0, 0.7) !important;
     }
     section[data-testid="stSidebar"] * {
         color: #e2e8f0 !important;
     }
 
-    /* Metric Cards */
+    /* Cyber Metric Cards */
     [data-testid="stMetricValue"] {
-        font-size: 1.85rem !important;
-        font-weight: 800 !important;
-        color: #38bdf8 !important;
+        font-size: 1.9rem !important;
+        font-weight: 900 !important;
+        color: #00f0ff !important;
+        text-shadow: 0 0 16px rgba(0, 240, 255, 0.45) !important;
+        letter-spacing: -0.5px !important;
     }
     [data-testid="stMetricLabel"] {
         font-size: 0.92rem !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
         color: #94a3b8 !important;
+        letter-spacing: 0.4px !important;
     }
     [data-testid="stMetricDelta"] {
         color: #34d399 !important;
-        font-size: 0.85rem !important;
+        font-size: 0.88rem !important;
+        font-weight: 700 !important;
     }
 
-    /* Container borders */
+    /* Futuristic Glassmorphism Card Containers */
     [data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: #1e293b !important;
-        border: 1px solid #334155 !important;
-        border-radius: 12px !important;
-        padding: 12px !important;
+        background: rgba(11, 19, 38, 0.75) !important;
+        backdrop-filter: blur(14px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+        border: 1px solid rgba(56, 189, 248, 0.22) !important;
+        border-radius: 14px !important;
+        padding: 14px !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.06) !important;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+    }
+    [data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlockBorderWrapper"]:hover {
+        border-color: rgba(56, 189, 248, 0.45) !important;
+        box-shadow: 0 10px 36px 0 rgba(0, 0, 0, 0.65), 0 0 18px rgba(56, 189, 248, 0.2) !important;
     }
 
-    /* Tabs */
+    /* Cyber Navigation Tabs */
     button[data-baseweb="tab"] {
         font-size: 0.95rem !important;
-        font-weight: 600 !important;
-        color: #64748b !important;
-        padding: 10px 14px !important;
+        font-weight: 700 !important;
+        color: #94a3b8 !important;
+        padding: 10px 18px !important;
+        transition: all 0.2s ease !important;
+    }
+    button[data-baseweb="tab"]:hover {
+        color: #38bdf8 !important;
     }
     button[data-baseweb="tab"][aria-selected="true"] {
-        color: #38bdf8 !important;
-        border-bottom: 2px solid #38bdf8 !important;
+        color: #00f0ff !important;
+        border-bottom: 2.5px solid #00f0ff !important;
+        text-shadow: 0 0 14px rgba(0, 240, 255, 0.6) !important;
     }
 
-    /* Primary buttons */
+    /* Electric Neon Action Buttons */
     div.stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%) !important;
+        background: linear-gradient(135deg, #0284c7 0%, #4f46e5 50%, #7c3aed 100%) !important;
         color: #ffffff !important;
         font-size: 1.05rem !important;
-        font-weight: 700 !important;
-        border-radius: 8px !important;
-        border: none !important;
-        padding: 0.65rem 1.4rem !important;
-        box-shadow: 0 4px 14px rgba(14,165,233,0.4);
-        transition: all 0.2s ease;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        padding: 0.7rem 1.5rem !important;
+        box-shadow: 0 4px 20px rgba(79, 70, 229, 0.5), 0 0 14px rgba(2, 132, 199, 0.4) !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     div.stButton > button[kind="primary"]:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(14,165,233,0.55);
+        transform: translateY(-2px) scale(1.01) !important;
+        box-shadow: 0 8px 30px rgba(79, 70, 229, 0.75), 0 0 22px rgba(56, 189, 248, 0.65) !important;
     }
 
-    /* Secondary buttons */
+    /* Secondary Glass Buttons */
     div.stButton > button:not([kind="primary"]) {
-        background: #1e293b !important;
-        color: #94a3b8 !important;
-        border: 1px solid #334155 !important;
-        border-radius: 8px !important;
+        background: rgba(15, 23, 42, 0.8) !important;
+        color: #cbd5e1 !important;
+        border: 1px solid rgba(56, 189, 248, 0.25) !important;
+        border-radius: 9px !important;
+        transition: all 0.2s ease !important;
     }
-
-    /* Download button */
-    div.stDownloadButton > button {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    div.stButton > button:not([kind="primary"]):hover {
+        border-color: #38bdf8 !important;
         color: #ffffff !important;
-        font-weight: 700 !important;
-        border-radius: 8px !important;
-        border: none !important;
-        font-size: 1rem !important;
-        box-shadow: 0 4px 12px rgba(5,150,105,0.4);
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.3) !important;
     }
 
-    /* DataFrame table */
+    /* Download Executive PDF Button */
+    div.stDownloadButton > button {
+        background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0284c7 100%) !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        font-size: 1.02rem !important;
+        box-shadow: 0 4px 20px rgba(13, 148, 136, 0.45) !important;
+        transition: all 0.25s ease !important;
+    }
+    div.stDownloadButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 28px rgba(13, 148, 136, 0.7), 0 0 16px rgba(56, 189, 248, 0.5) !important;
+    }
+
+    /* Cyber Table View */
     [data-testid="stDataFrame"] {
-        border: 1px solid #334155 !important;
-        border-radius: 8px !important;
+        border: 1px solid rgba(56, 189, 248, 0.25) !important;
+        border-radius: 10px !important;
+        background: rgba(11, 19, 38, 0.6) !important;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45) !important;
     }
 
-    /* Progress bars */
-    div[data-testid="stProgressBar"] > div {
-        border-radius: 6px !important;
+    /* Neon Dividers */
+    hr {
+        border-color: rgba(56, 189, 248, 0.2) !important;
+        box-shadow: 0 0 8px rgba(56, 189, 248, 0.12) !important;
     }
 
-    /* Dividers */
-    hr { border-color: #1e3a5f !important; }
-
-    /* Caption text */
+    /* Captions */
     .stCaption, small {
-        color: #64748b !important;
-        font-size: 0.82rem !important;
+        color: #94a3b8 !important;
+        font-size: 0.84rem !important;
     }
 
-    /* Input widgets */
+    /* Input Widgets with Dark Glass Fill */
     div[data-testid="stSelectbox"] > div > div,
     div[data-testid="stRadio"] {
-        background-color: #1e293b !important;
-        border-radius: 8px !important;
+        background-color: rgba(15, 23, 42, 0.85) !important;
+        border: 1px solid rgba(56, 189, 248, 0.25) !important;
+        border-radius: 10px !important;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+    }
+    div[data-testid="stSelectbox"] > div > div:hover {
+        border-color: rgba(56, 189, 248, 0.55) !important;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.25) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -203,7 +245,7 @@ if "has_calculated" not in st.session_state:
     st.session_state.has_calculated = False
 
 # ----------------- HEADER -----------------
-st.title("✈️ Airfare Component Price Estimation & Yield Engine")
+st.title("✈ Airfare Component Price Estimation & Yield Engine")
 st.markdown(
     "<span style='color:#64748b; font-size:13px;'>"
     "Smart India Hackathon (SIH 2026 — SIH26056) • Course: Supervised Learning (INT395)"
@@ -215,9 +257,10 @@ st.markdown("---")
 
 # ----------------- SIDEBAR -----------------
 st.sidebar.markdown("""
-<div style="background:linear-gradient(135deg,#0ea5e9,#2563eb);
-            border-radius:10px; padding:12px 14px; margin-bottom:12px; text-align:center;">
-    <div style="color:#fff; font-weight:800; font-size:15px;">🛫 Flight Configurator</div>
+<div style="background:linear-gradient(135deg,#0284c7 0%,#4338ca 100%);
+            border:1px solid rgba(56,189,248,0.35); box-shadow:0 4px 20px rgba(2,132,199,0.35);
+            border-radius:12px; padding:12px 14px; margin-bottom:12px; text-align:center;">
+    <div style="color:#fff; font-weight:800; font-size:15px;">✈ Flight Configurator</div>
     <div style="color:#bae6fd; font-size:11px; margin-top:3px;">
         Set route, class & booking window
     </div>
@@ -254,14 +297,14 @@ dest_city = label_to_city[dest_selection]
 
 flight_class = st.sidebar.radio("💺 Cabin Class", ["Economy", "Business"], horizontal=True)
 carrier_names = ["All Airlines (Compare All)"] + [c["name"] for c in CARRIERS]
-selected_airline = st.sidebar.selectbox("✈️ Preferred Carrier", carrier_names, index=0)
+selected_airline = st.sidebar.selectbox("✈ Preferred Carrier", carrier_names, index=0)
 is_compare_all = (selected_airline == "All Airlines (Compare All)")
 
 col_s1, col_s2 = st.sidebar.columns(2)
 with col_s1:
-    dep_time = st.selectbox("🕗 Departure", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=1)
+    dep_time = st.selectbox("🛫 Departure", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=1)
 with col_s2:
-    arr_time = st.selectbox("🕖 Arrival", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=3)
+    arr_time = st.selectbox("🛬 Arrival", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=3)
 
 days_left = st.sidebar.slider("📅 Days Before Departure", min_value=1, max_value=50, value=24)
 
@@ -272,8 +315,8 @@ st.sidebar.markdown("---")
 st.sidebar.markdown(f"""
 <div style="background:#1e293b; border-radius:8px; padding:10px 12px; border-left:3px solid #0ea5e9;">
     <div style="color:#38bdf8; font-weight:700; font-size:12px; margin-bottom:6px;">📡 ROUTE TELEMETRY</div>
-    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">✈️ Distance: <b>{route_info['distance_km']} km</b> ({route_info['distance_miles']} mi)</div>
-    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">⏱️ Duration: <b>{route_info['est_duration']} hrs</b></div>
+    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">✈ Distance: <b>{route_info['distance_km']} km</b> ({route_info['distance_miles']} mi)</div>
+    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">⏱ Duration: <b>{route_info['est_duration']} hrs</b></div>
     <div style="color:#34d399; font-size:12px;">🌱 CO₂: ~{route_info['co2_kg']} kg/passenger</div>
 </div>
 """, unsafe_allow_html=True)
@@ -496,37 +539,42 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
 # ─────────────────────────────────────────────────────────────
 if not st.session_state.has_calculated:
     # WELCOME BANNER
-    st.markdown(f"""
-    <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f2a47 100%);
-                border:1.5px solid #1e40af; border-radius:16px; padding:36px 28px;
-                text-align:center; margin:20px 0;">
-        <div style="font-size:56px; margin-bottom:10px;">✈️</div>
-        <h2 style="color:#38bdf8 !important; font-size:1.8rem; margin-bottom:10px;">
-            Ready to Analyze Your Airfare Route
-        </h2>
-        <p style="color:#94a3b8; font-size:15px; max-width:640px; margin:0 auto 22px auto;">
-            Currently configured:
-            <b style="color:#f8fafc;">{origin_city} ({AIRPORTS[origin_city]['code']})</b> ➔
-            <b style="color:#f8fafc;">{dest_city} ({AIRPORTS[dest_city]['code']})</b> on
-            <b style="color:#f8fafc;">{selected_airline}</b>
-            ({flight_class} Class, {days_left} days before departure).
-        </p>
-        <div style="display:flex; justify-content:center; gap:24px; flex-wrap:wrap; margin-bottom:24px;">
-            <div style="background:#1e3a5f; border-radius:10px; padding:12px 20px; min-width:130px;">
-                <div style="color:#38bdf8; font-size:20px; font-weight:800;">{route_info['distance_km']} km</div>
-                <div style="color:#64748b; font-size:11px; margin-top:2px;">GREAT-CIRCLE DIST.</div>
-            </div>
-            <div style="background:#1e3a5f; border-radius:10px; padding:12px 20px; min-width:130px;">
-                <div style="color:#fbbf24; font-size:20px; font-weight:800;">{route_info['est_duration']} hrs</div>
-                <div style="color:#64748b; font-size:11px; margin-top:2px;">EST. FLIGHT TIME</div>
-            </div>
-            <div style="background:#1e3a5f; border-radius:10px; padding:12px 20px; min-width:130px;">
-                <div style="color:#34d399; font-size:20px; font-weight:800;">{route_info['co2_kg']} kg</div>
-                <div style="color:#64748b; font-size:11px; margin-top:2px;">CO₂ FOOTPRINT</div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    landing_html = (
+        '<div style="background:radial-gradient(circle at top right, rgba(14,165,233,0.18), transparent 70%), linear-gradient(135deg, #090e1a 0%, #0e172a 50%, #090e1a 100%); '
+        'border:1.5px solid rgba(56,189,248,0.35); border-radius:18px; padding:38px 28px; text-align:center; margin:20px 0; '
+        'box-shadow:0 12px 40px rgba(0,0,0,0.7), 0 0 24px rgba(56,189,248,0.2);">'
+        '<div style="display:inline-flex; align-items:center; justify-content:center; width:68px; height:68px; '
+        'background:rgba(14,165,233,0.15); border:2px solid #38bdf8; border-radius:50%; margin-bottom:16px; '
+        'box-shadow:0 0 24px rgba(56,189,248,0.45);">'
+        '<span style="font-size:32px; color:#38bdf8; filter:drop-shadow(0 0 8px #38bdf8);">&#x2708;</span>'
+        '</div>'
+        '<h2 style="color:#38bdf8 !important; font-size:1.85rem; margin:0 0 10px 0; font-weight:800;">'
+        'Ready to Analyze Your Airfare Route'
+        '</h2>'
+        f'<p style="color:#94a3b8; font-size:15px; max-width:640px; margin:0 auto 24px auto; line-height:1.6;">'
+        f'Currently configured: '
+        f'<b style="color:#f8fafc;">{origin_city} ({AIRPORTS[origin_city]["code"]})</b> ➔ '
+        f'<b style="color:#f8fafc;">{dest_city} ({AIRPORTS[dest_city]["code"]})</b> on '
+        f'<b style="color:#38bdf8;">{selected_airline}</b> '
+        f'({flight_class} Class, {days_left} days before departure).'
+        '</p>'
+        '<div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-bottom:10px;">'
+        '<div style="background:rgba(30,58,95,0.7); border:1px solid rgba(56,189,248,0.35); border-radius:12px; padding:14px 22px; min-width:140px; box-shadow:0 4px 14px rgba(0,0,0,0.3);">'
+        f'<div style="color:#38bdf8; font-size:22px; font-weight:800;">{route_info["distance_km"]} km</div>'
+        '<div style="color:#94a3b8; font-size:11px; font-weight:700; margin-top:3px; letter-spacing:0.5px;">GREAT-CIRCLE DIST.</div>'
+        '</div>'
+        '<div style="background:rgba(30,58,95,0.7); border:1px solid rgba(251,191,36,0.35); border-radius:12px; padding:14px 22px; min-width:140px; box-shadow:0 4px 14px rgba(0,0,0,0.3);">'
+        f'<div style="color:#fbbf24; font-size:22px; font-weight:800;">{route_info["est_duration"]} hrs</div>'
+        '<div style="color:#94a3b8; font-size:11px; font-weight:700; margin-top:3px; letter-spacing:0.5px;">EST. FLIGHT TIME</div>'
+        '</div>'
+        '<div style="background:rgba(30,58,95,0.7); border:1px solid rgba(52,211,153,0.35); border-radius:12px; padding:14px 22px; min-width:140px; box-shadow:0 4px 14px rgba(0,0,0,0.3);">'
+        f'<div style="color:#34d399; font-size:22px; font-weight:800;">{route_info["co2_kg"]} kg</div>'
+        '<div style="color:#94a3b8; font-size:11px; font-weight:700; margin-top:3px; letter-spacing:0.5px;">CO₂ FOOTPRINT</div>'
+        '</div>'
+        '</div>'
+        '</div>'
+    )
+    st.markdown(landing_html, unsafe_allow_html=True)
 
     c_btn1, c_btn2, c_btn3 = st.columns([1, 2, 1])
     with c_btn2:
@@ -556,7 +604,7 @@ else:
         "🎯 Fare Prediction & Bill",
         "🏢 Multi-Airline Price Matrix",
         "🗺️ Interactive Flight Map",
-        "📊 AI Model Benchmark & Performance",
+        "📊 Machine Learning Performance & Benchmark",
         "🔍 Feature Drivers & Intelligence"
     ])
 
@@ -609,7 +657,7 @@ else:
                 with st.container(border=True):
                     if is_compare_all:
                         st.metric(
-                            label="🤖 ML Predicted Range (All Carriers)",
+                            label="ML Predicted Range (All Carriers)",
                             value=f"₹ {min_fare:,.0f} – ₹ {max_fare:,.0f}",
                             delta=f"Best: {eval_airline} (Avg ₹{avg_fare:,.0f})"
                         )
@@ -618,7 +666,7 @@ else:
                         )
                     else:
                         st.metric(
-                            label=f"🤖 ML Predicted Airfare",
+                            label=f"ML Predicted Airfare",
                             value=f"₹ {fare_val:,.0f}",
                             delta=f"{selected_airline} • {flight_class}"
                         )
@@ -632,7 +680,7 @@ else:
                         delta_str = f"{variance_info['variance_pct']:+.1f}% vs Best ML"
                         lowest_c = live_data.get('flights', [{}])[0].get('airline', 'OTA')
                         st.metric(
-                            label=f"🔴 Best Live Market ({lowest_c})",
+                            label=f"Best Live Market ({lowest_c})",
                             value=f"₹ {live_price:,.0f}",
                             delta=delta_str,
                             delta_color="inverse" if variance_info['variance_pct'] > 0 else "normal"
@@ -641,7 +689,7 @@ else:
                     elif carrier_live_match.get("has_selected"):
                         delta_str = f"{variance_info['variance_pct']:+.1f}% vs ML"
                         st.metric(
-                            label=f"🔴 Live {selected_airline} (Google Flights)",
+                            label=f"Live {selected_airline} (Google Flights)",
                             value=f"₹ {live_price:,.0f}",
                             delta=delta_str,
                             delta_color="inverse" if variance_info['variance_pct'] > 0 else "normal"
@@ -651,7 +699,7 @@ else:
                         delta_str = f"{variance_info['variance_pct']:+.1f}% vs ML"
                         lowest_c = carrier_live_match.get('lowest_carrier', 'OTA')
                         st.metric(
-                            label=f"🔴 Route Lowest Live ({lowest_c})",
+                            label=f"Route Lowest Live ({lowest_c})",
                             value=f"₹ {live_price:,.0f}",
                             delta=delta_str,
                             delta_color="inverse" if variance_info['variance_pct'] > 0 else "normal"
@@ -659,7 +707,7 @@ else:
                         st.caption(f"ℹ️ {selected_airline} has no published seat on this date")
                     else:
                         st.metric(
-                            label="🔴 Live Market (Google Flights)",
+                            label="Live Market (Google Flights)",
                             value="₹ Benchmark",
                             delta="Live feed idle"
                         )
@@ -708,91 +756,133 @@ else:
 
                     breakdown_items = [
                         ("Base Airfare", "Operations & Fleet Margin",
-                         breakdown["Base Fare"], "#38bdf8", "🔵"),
+                         breakdown["Base Fare"], "#38bdf8", "", "linear-gradient(90deg, #0284c7, #38bdf8)"),
                         ("Fuel Surcharge (YQ)", "Dynamic Demand Surcharge",
-                         breakdown["Fuel & Dynamic Surcharge (YQ)"], "#fbbf24", "🟡"),
+                         breakdown["Fuel & Dynamic Surcharge (YQ)"], "#fbbf24", "", "linear-gradient(90deg, #d97706, #fbbf24)"),
                         ("Airport Fees (UDF/PSF)", "Airport Development Fee + ASF",
-                         breakdown["Airport Development Fee (UDF/PSF)"], "#34d399", "🟢"),
+                         breakdown["Airport Development Fee (UDF/PSF)"], "#34d399", "", "linear-gradient(90deg, #059669, #34d399)"),
                         ("Statutory GST", "Goods & Services Tax on Aviation",
-                         breakdown["Goods & Services Tax (GST)"], "#c084fc", "🟣"),
+                         breakdown["Goods & Services Tax (GST)"], "#c084fc", "", "linear-gradient(90deg, #7c3aed, #c084fc)"),
                     ]
 
-                    # ── Custom HTML linear progress bars (color-matched, animated) ──
-                    bars_html = "<div style='margin-top:10px;'>"
-                    for short_label, desc, amt, col_code, emoji in breakdown_items:
+                    # ── Live Simulation Header Badge ──
+                    sim_header_badge = (
+                        "<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;'>"
+                        "<div style='display:inline-flex; align-items:center; gap:7px; background:rgba(6,78,59,0.4); border:1px solid #10b981; border-radius:20px; padding:3px 12px;'>"
+                        "<span style='width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 10px #10b981; animation:simPulseDot 1.4s infinite;'></span>"
+                        "<span style='color:#34d399; font-size:11px; font-weight:800; letter-spacing:0.5px;'>DYNAMIC TARIFF SIMULATION ACTIVE</span>"
+                        "</div>"
+                        "<span style='color:#64748b; font-size:11px;'>Real-time AI Cost Allocation</span>"
+                        "</div>"
+                    )
+
+                    # ── Custom HTML linear progress bars with active glowing simulation ──
+                    bars_list = ["<div style='margin-top:8px;'>"]
+                    for idx, (short_label, desc, amt, col_code, emoji, grad) in enumerate(breakdown_items):
                         b_pct = (amt / fare_val) * 100
-                        bars_html += f"""
-                        <div style="margin-bottom:18px;">
-                            <div style="display:flex; justify-content:space-between;
-                                        align-items:baseline; margin-bottom:6px;">
-                                <div>
-                                    <span style="color:{col_code}; font-size:15px;">{emoji}</span>
-                                    <span style="color:#f8fafc; font-weight:700;
-                                                 font-size:13px; margin-left:4px;">
-                                        {short_label}
-                                    </span>
-                                    <span style="color:#64748b; font-size:11px;
-                                                 margin-left:6px;">— {desc}</span>
-                                </div>
-                                <div style="text-align:right; min-width:110px;">
-                                    <span style="color:{col_code}; font-weight:800;
-                                                 font-size:14px;">₹ {amt:,.0f}</span>
-                                    <span style="color:#64748b; font-size:11px;
-                                                 margin-left:4px;">({b_pct:.1f}%)</span>
-                                </div>
-                            </div>
-                            <div style="background:#0f172a; border-radius:6px;
-                                        height:10px; width:100%; overflow:hidden;
-                                        border:1px solid #1e293b;">
-                                <div style="
-                                    height:100%;
-                                    width:{b_pct:.2f}%;
-                                    background:linear-gradient(90deg, {col_code}cc, {col_code});
-                                    border-radius:6px;
-                                    box-shadow: 0 0 8px {col_code}88;
-                                    animation: growBar 1.2s ease-out forwards;
-                                    transform-origin: left;
-                                "></div>
-                            </div>
-                        </div>"""
-                    bars_html += "</div>"
+                        delay = idx * 0.15
+                        bars_list.append(
+                            f"<div style='margin-bottom:18px;'>"
+                            f"<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;'>"
+                            f"<div>"
+                            f"<span style='color:{col_code}; font-size:14px; filter:drop-shadow(0 0 4px {col_code});'>{emoji}</span> "
+                            f"<span style='color:#f8fafc; font-weight:800; font-size:13.5px; margin-left:4px;'>{short_label}</span> "
+                            f"<span style='color:#94a3b8; font-size:11.5px; margin-left:6px;'>— {desc}</span>"
+                            f"</div>"
+                            f"<div style='text-align:right; min-width:115px;'>"
+                            f"<span style='color:{col_code}; font-weight:800; font-size:14.5px;'>₹ {amt:,.0f}</span> "
+                            f"<span style='color:#cbd5e1; font-weight:600; font-size:12px; margin-left:4px;'>({b_pct:.1f}%)</span>"
+                            f"</div>"
+                            f"</div>"
+                            f"<div style='background:rgba(15,23,42,0.85); border-radius:10px; height:13px; width:100%; overflow:hidden; border:1px solid rgba(56,189,248,0.25); box-shadow:inset 0 1px 3px rgba(0,0,0,0.6); position:relative;'>"
+                            f"<div style='height:100%; width:{b_pct:.2f}%; background:{grad}; border-radius:10px; box-shadow:0 0 12px {col_code}88; animation:growBar 1.2s cubic-bezier(0.16,1,0.3,1) {delay}s forwards, simBarPulse 3s infinite ease-in-out; transform-origin:left; position:relative; overflow:hidden;'>"
+                            f"<div class='bar-shimmer-sweep'></div>"
+                            f"</div>"
+                            f"</div>"
+                            f"</div>"
+                        )
+                    bars_list.append("</div>")
 
-                    # Stacked bar showing all components together
-                    stack_parts = ""
-                    for short_label, desc, amt, col_code, emoji in breakdown_items:
+                    # Combined fare composition stacked bar with live simulation sweep
+                    stack_segments = []
+                    legend_chips = []
+                    for short_label, desc, amt, col_code, emoji, grad in breakdown_items:
                         b_pct = (amt / fare_val) * 100
-                        stack_parts += f"""
-                        <div title="{short_label}: ₹{amt:,.0f} ({b_pct:.1f}%)"
-                             style="width:{b_pct:.2f}%; height:100%;
-                                    background:{col_code}; transition:width 0.5s;"></div>"""
+                        pct_label = f"{b_pct:.0f}%" if b_pct >= 8 else ""
+                        stack_segments.append(
+                            f"<div title='{short_label}: ₹{amt:,.0f} ({b_pct:.1f}%)' "
+                            f"style='width:{b_pct:.2f}%; height:100%; background:{grad}; "
+                            f"display:flex; align-items:center; justify-content:center; "
+                            f"color:#ffffff; font-weight:800; font-size:11px; text-shadow:0 1px 3px rgba(0,0,0,0.85); "
+                            f"border-right:1.5px solid rgba(15,23,42,0.85); position:relative;'>"
+                            f"{pct_label}</div>"
+                        )
+                        legend_chips.append(
+                            f"<div style='display:inline-flex; align-items:center; gap:6px; "
+                            f"background:rgba(30,41,59,0.85); border:1px solid {col_code}66; "
+                            f"border-radius:20px; padding:4px 11px; box-shadow:0 2px 6px rgba(0,0,0,0.35);'>"
+                            f"<span style='width:9px; height:9px; border-radius:50%; background:{col_code}; box-shadow:0 0 6px {col_code}; display:inline-block;'></span>"
+                            f"<span style='color:#e2e8f0; font-size:11.5px; font-weight:700;'>{short_label}</span>"
+                            f"<span style='color:{col_code}; font-size:11.5px; font-weight:800;'>₹{amt:,.0f}</span>"
+                            f"<span style='color:#94a3b8; font-size:10.5px;'>({b_pct:.1f}%)</span>"
+                            f"</div>"
+                        )
 
-                    bars_html += f"""
-                    <div style="margin:14px 0 8px 0;">
-                        <div style="color:#64748b; font-size:11px; font-weight:600;
-                                    margin-bottom:5px; letter-spacing:0.5px;">
-                            COMBINED FARE COMPOSITION
-                        </div>
-                        <div style="display:flex; height:16px; border-radius:8px;
-                                    overflow:hidden; border:1px solid #1e293b;
-                                    box-shadow:0 2px 8px rgba(0,0,0,0.4);">
-                            {stack_parts}
-                        </div>
-                        <div style="display:flex; gap:16px; margin-top:7px; flex-wrap:wrap;">"""
-
-                    for short_label, _, _, col_code, emoji in breakdown_items:
-                        bars_html += f"""
-                            <span style="font-size:11px; color:#94a3b8;">
-                                <span style="color:{col_code};">■</span> {short_label}
-                            </span>"""
-                    bars_html += "</div></div>"
+                    combined_html = (
+                        f"<div style='margin:22px 0 14px 0;'>"
+                        f"<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'>"
+                        f"<span style='color:#38bdf8; font-size:12px; font-weight:800; letter-spacing:0.8px;'>COMBINED FARE COMPOSITION & SIMULATION</span>"
+                        f"<span style='color:#94a3b8; font-size:11px; font-weight:600;'>100% Itemized Tariff Breakdown</span>"
+                        f"</div>"
+                        f"<div style='position:relative; height:28px; border-radius:14px; overflow:hidden; "
+                        f"border:2px solid #38bdf8; background:#0f172a; "
+                        f"box-shadow:0 4px 20px rgba(0,0,0,0.85), 0 0 16px rgba(56,189,248,0.5);'>"
+                        f"<div style='display:flex; width:100%; height:100%;'>"
+                        f"{''.join(stack_segments)}"
+                        f"</div>"
+                        f"<div class='shimmer-sweep'></div>"
+                        f"</div>"
+                        f"<div style='display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;'>"
+                        f"{''.join(legend_chips)}"
+                        f"</div>"
+                        f"</div>"
+                    )
 
                     st.markdown(f"""
                     <style>
                     @keyframes growBar {{
                         from {{ width: 0%; }}
                     }}
+                    @keyframes simPulseDot {{
+                        0%, 100% {{ opacity: 1; transform: scale(1); }}
+                        50% {{ opacity: 0.35; transform: scale(0.75); }}
+                    }}
+                    @keyframes simBarPulse {{
+                        0%, 100% {{ filter: brightness(1); }}
+                        50% {{ filter: brightness(1.22); }}
+                    }}
+                    @keyframes shimmerSweep {{
+                        0% {{ transform: translateX(-100%); }}
+                        100% {{ transform: translateX(250%); }}
+                    }}
+                    .bar-shimmer-sweep {{
+                        position: absolute;
+                        top: 0; left: 0; width: 60%; height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+                        animation: shimmerSweep 2.5s infinite ease-in-out;
+                        pointer-events: none;
+                    }}
+                    .shimmer-sweep {{
+                        position: absolute;
+                        top: 0; left: 0; width: 50%; height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                        animation: shimmerSweep 3s infinite ease-in-out;
+                        pointer-events: none;
+                    }}
                     </style>
-                    {bars_html}
+                    {sim_header_badge}
+                    {''.join(bars_list)}
+                    {combined_html}
                     """, unsafe_allow_html=True)
 
                     st.markdown("---")
@@ -858,29 +948,44 @@ else:
             fig_curve = px.line(
                 df_sim, x="Days Before Departure", y="Estimated Price (INR)",
                 markers=True,
-                title=f"Airfare Yield Curve: {origin_city} ➔ {dest_city} ({selected_airline} - {flight_class})",
+                title=f"Airfare Yield Curve & Price Simulation: {origin_city} ➔ {dest_city} ({selected_airline} - {flight_class})",
                 color_discrete_sequence=["#38bdf8"]
             )
+            fig_curve.update_traces(
+                fill='tozeroy',
+                fillcolor='rgba(56, 189, 248, 0.12)',
+                line=dict(color='#38bdf8', width=3.5, shape='spline'),
+                marker=dict(size=7, color='#fbbf24', line=dict(color='#0f172a', width=1.5)),
+                hovertemplate="<b>Day %{x}</b> before flight<br>Tariff: <b>₹%{y:,.0f}</b><extra></extra>"
+            )
             fig_curve.add_vline(
-                x=days_left, line_dash="dash", line_color="#f43f5e",
-                annotation_text=f"Selected: Day {days_left}",
-                annotation_font_color="#f43f5e"
+                x=days_left, line_dash="dash", line_color="#34d399", line_width=2.5,
+                annotation_text=f"✈ Booking: Day {days_left} (₹{fare_val:,.0f})",
+                annotation_font_color="#34d399",
+                annotation_font_size=12,
+                annotation_position="top right"
             )
             # Shade high-price zone (last 10 days)
             fig_curve.add_vrect(
                 x0=1, x1=10,
-                fillcolor="rgba(244,63,94,0.08)", line_width=0,
-                annotation_text="⚠️ Surge Zone", annotation_position="top left",
-                annotation_font_color="#f43f5e"
+                fillcolor="rgba(244,63,94,0.15)", line_width=1.5, line_color="rgba(244,63,94,0.45)",
+                annotation_text="🚨 Surge Zone (Days 1–10)", annotation_position="top left",
+                annotation_font_color="#f43f5e",
+                annotation_font_size=11
             )
-            fig_curve.update_xaxes(autorange="reversed", title="Days Before Departure")
-            fig_curve.update_yaxes(title="Estimated Airfare (₹)")
+            fig_curve.update_xaxes(
+                autorange="reversed", title="Days Before Departure (Decreasing ➔ Flight Day)",
+                gridcolor="#1e293b", tickfont=dict(color="#cbd5e1", size=11)
+            )
+            fig_curve.update_yaxes(
+                title="Estimated Airfare (₹)",
+                gridcolor="#1e293b", tickprefix="₹", tickfont=dict(color="#cbd5e1", size=11)
+            )
             fig_curve.update_layout(
-                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)", height=370,
-                margin=dict(l=20, r=20, t=40, b=20),
-                xaxis=dict(gridcolor="#1e293b"),
-                yaxis=dict(gridcolor="#1e293b")
+                template="plotly_dark", paper_bgcolor="rgba(15,23,42,0.6)",
+                plot_bgcolor="rgba(15,23,42,0.6)", height=390,
+                margin=dict(l=20, r=20, t=50, b=20),
+                hoverlabel=dict(bgcolor="#1e293b", font_size=12, font_family="Segoe UI")
             )
             st.plotly_chart(fig_curve, use_container_width=True)
 
@@ -905,7 +1010,7 @@ else:
                 use_container_width=True
             )
             st.caption(
-                "💡 Official 1-Page PDF Quotation — compatible with all phones, tablets & computers. "
+                "Official 1-Page PDF Quotation — compatible with all phones, tablets & computers. "
                 "Contains verified flight specs, itemised cost breakdown, and AI valuation advisory."
             )
 
@@ -930,12 +1035,12 @@ else:
         with mode_c1:
             pricing_source = st.radio(
                 "Select Pricing Intelligence Source:",
-                ["🔴 Live Real-Time Tariffs (Google Flights Feed)", "🤖 Supervised ML Model Benchmark"],
+                ["Live Real-Time Tariffs (Google Flights Feed)", "Supervised ML Model Benchmark"],
                 horizontal=True
             )
         with mode_c2:
             st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
-            st.link_button("🌐 Open Live Search on Google Flights", live_gflights_url, use_container_width=True)
+            st.link_button("Open Live Search on Google Flights", live_gflights_url, use_container_width=True)
 
         # Baseline ML multi-carrier comparison
         df_multi = get_multi_carrier_comparison(
@@ -943,14 +1048,14 @@ else:
         )
 
         carrier_colors = {
-            "IndiGo":        "#38bdf8",
-            "Air India":     "#f43f5e",
-            "Vistara":       "#a855f7",
-            "AirAsia India": "#fb923c",
-            "SpiceJet":      "#fbbf24",
-            "GO FIRST":      "#34d399",
-            "Akasa Air":     "#c084fc",
-            "Air India Express": "#f97316"
+            "IndiGo":        "#00f0ff", # Neon Cyber Cyan
+            "Air India":     "#ff2a5f", # Vivid Neon Crimson
+            "Vistara":       "#a855f7", # Electric Purple
+            "AirAsia India": "#ff7700", # Luminescent Solar Orange
+            "SpiceJet":      "#fbbf24", # Laser Amber
+            "GO FIRST":      "#10b981", # Emerald Matrix Green
+            "Akasa Air":     "#c084fc", # Prism Violet
+            "Air India Express": "#f43f5e" # Coral Rose
         }
 
         if "Live Real-Time" in pricing_source:
@@ -967,14 +1072,14 @@ else:
                 with lm_col2:
                     st.metric("Live Flights Online", f"{live_res['flight_count']} options", f"Travel Date: {live_res['date_str']}")
                 with lm_col3:
-                    st.metric("Live Feed Source", "🟢 Google Flights API", "15m Smart Cache")
+                    st.metric("Live Feed Source", "Google Flights API", "15m Smart Cache")
 
                 if selected_airline in live_res["carrier_best"]:
                     st.success(f"✅ Found live flights for your preferred carrier: **{selected_airline}** at **₹ {live_res['carrier_best'][selected_airline]['price']:,}**")
                 else:
                     st.info(f"ℹ️ **{selected_airline}** does not have published direct seats on Google Flights for **{dep_date_str}**. Showing available active carriers on this route below.")
 
-                st.markdown("#### ✈️ Live Bookable Airline Tariffs (Cheapest Found per Carrier)")
+                st.markdown("#### Live Bookable Airline Tariffs (Cheapest Found per Carrier)")
 
                 # Build live carrier cards
                 live_cards_html = []
@@ -1023,7 +1128,7 @@ else:
                 components.html(grid_live_doc, height=200 if len(live_cards_html) <= 3 else 390, scrolling=False)
 
                 st.markdown("---")
-                st.markdown("#### 📊 Live Market Fare vs ML Prediction by Carrier")
+                st.markdown("#### Live Market Fare vs ML Prediction by Carrier")
 
                 comp_carrier_data = []
                 for _, ml_r in df_multi.iterrows():
@@ -1051,13 +1156,13 @@ else:
                 fig_live_vs_ml = go.Figure()
                 fig_live_vs_ml.add_trace(go.Bar(
                     x=df_carrier_comp["Airline"], y=df_carrier_comp["ML Predicted Fare (₹)"],
-                    name="🤖 ML Prediction Baseline", marker_color="#3b82f6",
+                    name="ML Prediction Baseline", marker_color="#3b82f6",
                     text=df_carrier_comp["ML Predicted Fare (₹)"].apply(lambda x: f"₹{x:,.0f}" if pd.notnull(x) else "N/A"),
                     textposition="auto"
                 ))
                 fig_live_vs_ml.add_trace(go.Bar(
                     x=df_carrier_comp["Airline"], y=df_carrier_comp["Live Google Flights Fare (₹)"],
-                    name="🔴 Live Market (Google Flights)", marker_color="#10b981",
+                    name="Live Market (Google Flights)", marker_color="#10b981",
                     text=df_carrier_comp["Live Google Flights Fare (₹)"].apply(lambda x: f"₹{x:,.0f}" if pd.notnull(x) else "No Live Seat"),
                     textposition="auto"
                 ))
@@ -1073,7 +1178,7 @@ else:
                 )
                 st.plotly_chart(fig_live_vs_ml, use_container_width=True)
 
-                st.markdown("#### 📋 Real-Time Flights Schedule (Online OTA Feed)")
+                st.markdown("#### Real-Time Flights Schedule (Online OTA Feed)")
                 df_flights_table = pd.DataFrame(live_res["flights"])
                 st.dataframe(
                     df_flights_table[['airline', 'price', 'stops_label', 'duration_hours', 'departure_time', 'arrival_time', 'aircraft', 'source']]
@@ -1141,7 +1246,7 @@ else:
             components.html(grid_full_html, height=420, scrolling=False)
 
             st.markdown("---")
-            st.markdown("#### 📋 Comprehensive Carrier Comparison Table")
+            st.markdown("#### Comprehensive Carrier Comparison Table")
 
             fig_compare = px.bar(
                 df_multi, x="Airline", y="Estimated_Fare",
@@ -1191,11 +1296,11 @@ else:
         gm_col1, gm_col2 = st.columns([3.5, 1.5])
         with gm_col1:
             st.markdown(
-                "💡 Use the **layer switcher** (top-right) to toggle between "
+                "Use the **layer switcher** (top-right) to toggle between "
                 "Google Satellite, Streets, Terrain, and Traffic views."
             )
         with gm_col2:
-            st.link_button("🌐 Open in Google Maps", gmaps_url, use_container_width=True)
+            st.link_button("Open in Google Maps", gmaps_url, use_container_width=True)
 
         # Resolve stopover hub airport if flight has 1 stop
         stopover_info = None
@@ -1249,11 +1354,11 @@ else:
                 use_container_width=True
             )
 
-            st.markdown("### 📈 Interactive Regression Diagnostics")
+            st.markdown("### Interactive Regression Diagnostics")
 
             # R² bar chart
             fig_bench = go.Figure()
-            colors_bench = ['#475569', '#475569', '#0ea5e9', '#34d399', '#64748b']
+            colors_bench = ['#334155', '#4f46e5', '#06b6d4', '#10b981', '#8b5cf6']
             fig_bench.add_trace(go.Bar(
                 x=metrics_df['Model'], y=metrics_df['R2'],
                 name='R² Score',
@@ -1271,7 +1376,7 @@ else:
             )
             st.plotly_chart(fig_bench, use_container_width=True)
 
-            st.markdown("#### 📸 Publication Diagnostic Plots")
+            st.markdown("#### Publication Diagnostic Plots")
             pcol1, pcol2 = st.columns(2)
             with pcol1:
                 pva_img = os.path.join(PLOTS_DIR, "predicted_vs_actual.png")
@@ -1307,7 +1412,7 @@ else:
                     df_imp, x="Importance_Percent", y="Feature", orientation="h",
                     title="Relative Feature Importance Contribution (%)",
                     color="Importance_Percent",
-                    color_continuous_scale=[[0, "#1e3a5f"], [0.5, "#0ea5e9"], [1, "#38bdf8"]],
+                    color_continuous_scale=[[0, "#4338ca"], [0.4, "#0284c7"], [0.8, "#06b6d4"], [1, "#34d399"]],
                     template="plotly_dark", text="Importance_Percent"
                 )
                 fig_imp.update_traces(
@@ -1325,7 +1430,7 @@ else:
 
         with fi_col2:
             if importance_list:
-                st.markdown("##### 🏆 Ranked Component Impact")
+                st.markdown("##### Ranked Component Impact")
                 df_imp_display = pd.DataFrame(importance_list).sort_values(
                     "Importance_Percent", ascending=False
                 )
