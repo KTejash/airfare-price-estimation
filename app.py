@@ -717,15 +717,27 @@ else:
                          breakdown["Goods & Services Tax (GST)"], "#c084fc", "🟣", "linear-gradient(90deg, #7c3aed, #c084fc)"),
                     ]
 
-                    # ── Custom HTML linear progress bars (color-matched, animated) ──
-                    bars_list = ["<div style='margin-top:12px;'>"]
-                    for short_label, desc, amt, col_code, emoji, grad in breakdown_items:
+                    # ── Live Simulation Header Badge ──
+                    sim_header_badge = (
+                        "<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;'>"
+                        "<div style='display:inline-flex; align-items:center; gap:7px; background:rgba(6,78,59,0.4); border:1px solid #10b981; border-radius:20px; padding:3px 12px;'>"
+                        "<span style='width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 10px #10b981; animation:simPulseDot 1.4s infinite;'></span>"
+                        "<span style='color:#34d399; font-size:11px; font-weight:800; letter-spacing:0.5px;'>DYNAMIC TARIFF SIMULATION ACTIVE</span>"
+                        "</div>"
+                        "<span style='color:#64748b; font-size:11px;'>Real-time AI Cost Allocation</span>"
+                        "</div>"
+                    )
+
+                    # ── Custom HTML linear progress bars with active glowing simulation ──
+                    bars_list = ["<div style='margin-top:8px;'>"]
+                    for idx, (short_label, desc, amt, col_code, emoji, grad) in enumerate(breakdown_items):
                         b_pct = (amt / fare_val) * 100
+                        delay = idx * 0.15
                         bars_list.append(
-                            f"<div style='margin-bottom:16px;'>"
+                            f"<div style='margin-bottom:18px;'>"
                             f"<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;'>"
                             f"<div>"
-                            f"<span style='color:{col_code}; font-size:15px; filter:drop-shadow(0 0 4px {col_code});'>{emoji}</span> "
+                            f"<span style='color:{col_code}; font-size:14px; filter:drop-shadow(0 0 4px {col_code});'>{emoji}</span> "
                             f"<span style='color:#f8fafc; font-weight:800; font-size:13.5px; margin-left:4px;'>{short_label}</span> "
                             f"<span style='color:#94a3b8; font-size:11.5px; margin-left:6px;'>— {desc}</span>"
                             f"</div>"
@@ -734,14 +746,16 @@ else:
                             f"<span style='color:#cbd5e1; font-weight:600; font-size:12px; margin-left:4px;'>({b_pct:.1f}%)</span>"
                             f"</div>"
                             f"</div>"
-                            f"<div style='background:rgba(15,23,42,0.85); border-radius:10px; height:12px; width:100%; overflow:hidden; border:1px solid rgba(56,189,248,0.25); box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);'>"
-                            f"<div style='height:100%; width:{b_pct:.2f}%; background:{grad}; border-radius:10px; box-shadow:0 0 12px {col_code}aa; animation:growBar 1.2s cubic-bezier(0.16,1,0.3,1) forwards; transform-origin:left;'></div>"
+                            f"<div style='background:rgba(15,23,42,0.85); border-radius:10px; height:13px; width:100%; overflow:hidden; border:1px solid rgba(56,189,248,0.25); box-shadow:inset 0 1px 3px rgba(0,0,0,0.6); position:relative;'>"
+                            f"<div style='height:100%; width:{b_pct:.2f}%; background:{grad}; border-radius:10px; box-shadow:0 0 12px {col_code}88; animation:growBar 1.2s cubic-bezier(0.16,1,0.3,1) {delay}s forwards, simBarPulse 3s infinite ease-in-out; transform-origin:left; position:relative; overflow:hidden;'>"
+                            f"<div class='bar-shimmer-sweep'></div>"
+                            f"</div>"
                             f"</div>"
                             f"</div>"
                         )
                     bars_list.append("</div>")
 
-                    # Combined fare composition stacked bar with glowing mixed gradient simulation
+                    # Combined fare composition stacked bar with live simulation sweep
                     stack_segments = []
                     legend_chips = []
                     for short_label, desc, amt, col_code, emoji, grad in breakdown_items:
@@ -751,8 +765,8 @@ else:
                             f"<div title='{short_label}: ₹{amt:,.0f} ({b_pct:.1f}%)' "
                             f"style='width:{b_pct:.2f}%; height:100%; background:{grad}; "
                             f"display:flex; align-items:center; justify-content:center; "
-                            f"color:#ffffff; font-weight:800; font-size:11px; text-shadow:0 1px 2px rgba(0,0,0,0.8); "
-                            f"border-right:1.5px solid rgba(15,23,42,0.8);'>"
+                            f"color:#ffffff; font-weight:800; font-size:11px; text-shadow:0 1px 3px rgba(0,0,0,0.85); "
+                            f"border-right:1.5px solid rgba(15,23,42,0.85); position:relative;'>"
                             f"{pct_label}</div>"
                         )
                         legend_chips.append(
@@ -767,14 +781,14 @@ else:
                         )
 
                     combined_html = (
-                        f"<div style='margin:20px 0 12px 0;'>"
+                        f"<div style='margin:22px 0 14px 0;'>"
                         f"<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'>"
                         f"<span style='color:#38bdf8; font-size:12px; font-weight:800; letter-spacing:0.8px;'>🧬 COMBINED FARE COMPOSITION & SIMULATION</span>"
                         f"<span style='color:#94a3b8; font-size:11px; font-weight:600;'>100% Itemized Tariff Breakdown</span>"
                         f"</div>"
-                        f"<div style='position:relative; height:26px; border-radius:14px; overflow:hidden; "
+                        f"<div style='position:relative; height:28px; border-radius:14px; overflow:hidden; "
                         f"border:2px solid #38bdf8; background:#0f172a; "
-                        f"box-shadow:0 4px 18px rgba(0,0,0,0.8), 0 0 14px rgba(56,189,248,0.4);'>"
+                        f"box-shadow:0 4px 20px rgba(0,0,0,0.85), 0 0 16px rgba(56,189,248,0.5);'>"
                         f"<div style='display:flex; width:100%; height:100%;'>"
                         f"{''.join(stack_segments)}"
                         f"</div>"
@@ -791,18 +805,34 @@ else:
                     @keyframes growBar {{
                         from {{ width: 0%; }}
                     }}
+                    @keyframes simPulseDot {{
+                        0%, 100% {{ opacity: 1; transform: scale(1); }}
+                        50% {{ opacity: 0.35; transform: scale(0.75); }}
+                    }}
+                    @keyframes simBarPulse {{
+                        0%, 100% {{ filter: brightness(1); }}
+                        50% {{ filter: brightness(1.22); }}
+                    }}
                     @keyframes shimmerSweep {{
                         0% {{ transform: translateX(-100%); }}
-                        100% {{ transform: translateX(200%); }}
+                        100% {{ transform: translateX(250%); }}
+                    }}
+                    .bar-shimmer-sweep {{
+                        position: absolute;
+                        top: 0; left: 0; width: 60%; height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+                        animation: shimmerSweep 2.5s infinite ease-in-out;
+                        pointer-events: none;
                     }}
                     .shimmer-sweep {{
                         position: absolute;
                         top: 0; left: 0; width: 50%; height: 100%;
-                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
-                        animation: shimmerSweep 3.2s infinite ease-in-out;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                        animation: shimmerSweep 3s infinite ease-in-out;
                         pointer-events: none;
                     }}
                     </style>
+                    {sim_header_badge}
                     {''.join(bars_list)}
                     {combined_html}
                     """, unsafe_allow_html=True)
