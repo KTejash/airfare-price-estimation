@@ -203,7 +203,7 @@ if "has_calculated" not in st.session_state:
     st.session_state.has_calculated = False
 
 # ----------------- HEADER -----------------
-st.title("✈️ Airfare Component Price Estimation & Yield Engine")
+st.title("Airfare Component Price Estimation & Yield Engine")
 st.markdown(
     "<span style='color:#64748b; font-size:13px;'>"
     "Smart India Hackathon (SIH 2026 — SIH26056) • Course: Supervised Learning (INT395)"
@@ -217,7 +217,7 @@ st.markdown("---")
 st.sidebar.markdown("""
 <div style="background:linear-gradient(135deg,#0ea5e9,#2563eb);
             border-radius:10px; padding:12px 14px; margin-bottom:12px; text-align:center;">
-    <div style="color:#fff; font-weight:800; font-size:15px;">🛫 Flight Configurator</div>
+    <div style="color:#fff; font-weight:800; font-size:15px;">Flight Configurator</div>
     <div style="color:#bae6fd; font-size:11px; margin-top:3px;">
         Set route, class & booking window
     </div>
@@ -236,7 +236,7 @@ default_src_lbl = format_airport_label("Delhi") if "Delhi" in AIRPORTS else airp
 default_dst_lbl = format_airport_label("Mumbai") if "Mumbai" in AIRPORTS else airport_options[1]
 
 origin_selection = st.sidebar.selectbox(
-    "🛫 Origin Airport (Name — City [IATA])",
+    "Origin Airport (Name — City [IATA])",
     airport_options,
     index=airport_options.index(default_src_lbl)
 )
@@ -246,24 +246,24 @@ dest_airport_options = [lbl for lbl in airport_options if label_to_city[lbl] != 
 dest_default_idx = dest_airport_options.index(default_dst_lbl) if default_dst_lbl in dest_airport_options else 0
 
 dest_selection = st.sidebar.selectbox(
-    "🛬 Destination Airport (Name — City [IATA])",
+    "Destination Airport (Name — City [IATA])",
     dest_airport_options,
     index=dest_default_idx
 )
 dest_city = label_to_city[dest_selection]
 
-flight_class = st.sidebar.radio("💺 Cabin Class", ["Economy", "Business"], horizontal=True)
+flight_class = st.sidebar.radio("Cabin Class", ["Economy", "Business"], horizontal=True)
 carrier_names = ["All Airlines (Compare All)"] + [c["name"] for c in CARRIERS]
-selected_airline = st.sidebar.selectbox("✈️ Preferred Carrier", carrier_names, index=0)
+selected_airline = st.sidebar.selectbox("Preferred Carrier", carrier_names, index=0)
 is_compare_all = (selected_airline == "All Airlines (Compare All)")
 
 col_s1, col_s2 = st.sidebar.columns(2)
 with col_s1:
-    dep_time = st.selectbox("🕗 Departure", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=1)
+    dep_time = st.selectbox("Departure", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=1)
 with col_s2:
-    arr_time = st.selectbox("🕖 Arrival", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=3)
+    arr_time = st.selectbox("Arrival", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=3)
 
-days_left = st.sidebar.slider("📅 Days Before Departure", min_value=1, max_value=50, value=24)
+days_left = st.sidebar.slider("Days Before Departure", min_value=1, max_value=50, value=24)
 
 # Real-time route computation
 route_info = get_route_details(origin_city, dest_city)
@@ -271,15 +271,15 @@ route_info = get_route_details(origin_city, dest_city)
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"""
 <div style="background:#1e293b; border-radius:8px; padding:10px 12px; border-left:3px solid #0ea5e9;">
-    <div style="color:#38bdf8; font-weight:700; font-size:12px; margin-bottom:6px;">📡 ROUTE TELEMETRY</div>
-    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">✈️ Distance: <b>{route_info['distance_km']} km</b> ({route_info['distance_miles']} mi)</div>
-    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">⏱️ Duration: <b>{route_info['est_duration']} hrs</b></div>
-    <div style="color:#34d399; font-size:12px;">🌱 CO₂: ~{route_info['co2_kg']} kg/passenger</div>
+    <div style="color:#38bdf8; font-weight:700; font-size:12px; margin-bottom:6px;">ROUTE TELEMETRY</div>
+    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">Distance: <b>{route_info['distance_km']} km</b> ({route_info['distance_miles']} mi)</div>
+    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">Duration: <b>{route_info['est_duration']} hrs</b></div>
+    <div style="color:#34d399; font-size:12px;">CO₂: ~{route_info['co2_kg']} kg/passenger</div>
 </div>
 """, unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
-btn_sidebar = st.sidebar.button("🚀 Calculate & Estimate Airfare", type="primary", use_container_width=True)
+btn_sidebar = st.sidebar.button("Calculate & Estimate Airfare", type="primary", use_container_width=True)
 if btn_sidebar:
     st.session_state.has_calculated = True
 
@@ -500,7 +500,7 @@ if not st.session_state.has_calculated:
     <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f2a47 100%);
                 border:1.5px solid #1e40af; border-radius:16px; padding:36px 28px;
                 text-align:center; margin:20px 0;">
-        <div style="font-size:56px; margin-bottom:10px;">✈️</div>
+        
         <h2 style="color:#38bdf8 !important; font-size:1.8rem; margin-bottom:10px;">
             Ready to Analyze Your Airfare Route
         </h2>
@@ -530,7 +530,7 @@ if not st.session_state.has_calculated:
 
     c_btn1, c_btn2, c_btn3 = st.columns([1, 2, 1])
     with c_btn2:
-        if st.button("🚀 Calculate & Show Airfare Breakdown", type="primary", use_container_width=True):
+        if st.button("Calculate & Show Airfare Breakdown", type="primary", use_container_width=True):
             st.session_state.has_calculated = True
             st.rerun()
 
@@ -547,17 +547,17 @@ else:
             unsafe_allow_html=True
         )
     with rcol2:
-        if st.button("🔄 Recalculate / Update", use_container_width=True):
+        if st.button("Recalculate / Update", use_container_width=True):
             st.session_state.has_calculated = True
             st.rerun()
 
     # ── TABS ──
     tab_fare, tab_multi, tab_map, tab_benchmark, tab_insights = st.tabs([
-        "🎯 Fare Prediction & Bill",
-        "🏢 Multi-Airline Price Matrix",
-        "🗺️ Interactive Flight Map",
-        "📊 AI Model Benchmark & Performance",
-        "🔍 Feature Drivers & Intelligence"
+        "Fare Prediction & Bill",
+        "Multi-Airline Price Matrix",
+        "Interactive Flight Map",
+        "AI Model Benchmark & Performance",
+        "Feature Drivers & Intelligence"
     ])
 
     # ══════════════════════════════════════════════════════════
@@ -609,7 +609,7 @@ else:
                 with st.container(border=True):
                     if is_compare_all:
                         st.metric(
-                            label="🤖 ML Predicted Range (All Carriers)",
+                            label="ML Predicted Range (All Carriers)",
                             value=f"₹ {min_fare:,.0f} – ₹ {max_fare:,.0f}",
                             delta=f"Best: {eval_airline} (Avg ₹{avg_fare:,.0f})"
                         )
@@ -618,7 +618,7 @@ else:
                         )
                     else:
                         st.metric(
-                            label=f"🤖 ML Predicted Airfare",
+                            label=f"ML Predicted Airfare",
                             value=f"₹ {fare_val:,.0f}",
                             delta=f"{selected_airline} • {flight_class}"
                         )
@@ -632,7 +632,7 @@ else:
                         delta_str = f"{variance_info['variance_pct']:+.1f}% vs Best ML"
                         lowest_c = live_data.get('flights', [{}])[0].get('airline', 'OTA')
                         st.metric(
-                            label=f"🔴 Best Live Market ({lowest_c})",
+                            label=f"Best Live Market ({lowest_c})",
                             value=f"₹ {live_price:,.0f}",
                             delta=delta_str,
                             delta_color="inverse" if variance_info['variance_pct'] > 0 else "normal"
@@ -641,7 +641,7 @@ else:
                     elif carrier_live_match.get("has_selected"):
                         delta_str = f"{variance_info['variance_pct']:+.1f}% vs ML"
                         st.metric(
-                            label=f"🔴 Live {selected_airline} (Google Flights)",
+                            label=f"Live {selected_airline} (Google Flights)",
                             value=f"₹ {live_price:,.0f}",
                             delta=delta_str,
                             delta_color="inverse" if variance_info['variance_pct'] > 0 else "normal"
@@ -651,7 +651,7 @@ else:
                         delta_str = f"{variance_info['variance_pct']:+.1f}% vs ML"
                         lowest_c = carrier_live_match.get('lowest_carrier', 'OTA')
                         st.metric(
-                            label=f"🔴 Route Lowest Live ({lowest_c})",
+                            label=f"Route Lowest Live ({lowest_c})",
                             value=f"₹ {live_price:,.0f}",
                             delta=delta_str,
                             delta_color="inverse" if variance_info['variance_pct'] > 0 else "normal"
@@ -659,7 +659,7 @@ else:
                         st.caption(f"ℹ️ {selected_airline} has no published seat on this date")
                     else:
                         st.metric(
-                            label="🔴 Live Market (Google Flights)",
+                            label="Live Market (Google Flights)",
                             value="₹ Benchmark",
                             delta="Live feed idle"
                         )
@@ -700,7 +700,7 @@ else:
 
             with b_col1:
                 with st.container(border=True):
-                    st.subheader("🧾 Component Cost Breakdown (Bill of Airfare)")
+                    st.subheader("Component Cost Breakdown (Bill of Airfare)")
                     st.caption(
                         "Detailed decomposition of airfare into base operating tariff, "
                         "fuel surcharges, and statutory aviation fees."
@@ -708,13 +708,13 @@ else:
 
                     breakdown_items = [
                         ("Base Airfare", "Operations & Fleet Margin",
-                         breakdown["Base Fare"], "#38bdf8", "🔵", "linear-gradient(90deg, #0284c7, #38bdf8)"),
+                         breakdown["Base Fare"], "#38bdf8", "", "linear-gradient(90deg, #0284c7, #38bdf8)"),
                         ("Fuel Surcharge (YQ)", "Dynamic Demand Surcharge",
-                         breakdown["Fuel & Dynamic Surcharge (YQ)"], "#fbbf24", "🟡", "linear-gradient(90deg, #d97706, #fbbf24)"),
+                         breakdown["Fuel & Dynamic Surcharge (YQ)"], "#fbbf24", "", "linear-gradient(90deg, #d97706, #fbbf24)"),
                         ("Airport Fees (UDF/PSF)", "Airport Development Fee + ASF",
-                         breakdown["Airport Development Fee (UDF/PSF)"], "#34d399", "🟢", "linear-gradient(90deg, #059669, #34d399)"),
+                         breakdown["Airport Development Fee (UDF/PSF)"], "#34d399", "", "linear-gradient(90deg, #059669, #34d399)"),
                         ("Statutory GST", "Goods & Services Tax on Aviation",
-                         breakdown["Goods & Services Tax (GST)"], "#c084fc", "🟣", "linear-gradient(90deg, #7c3aed, #c084fc)"),
+                         breakdown["Goods & Services Tax (GST)"], "#c084fc", "", "linear-gradient(90deg, #7c3aed, #c084fc)"),
                     ]
 
                     # ── Live Simulation Header Badge ──
@@ -783,7 +783,7 @@ else:
                     combined_html = (
                         f"<div style='margin:22px 0 14px 0;'>"
                         f"<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'>"
-                        f"<span style='color:#38bdf8; font-size:12px; font-weight:800; letter-spacing:0.8px;'>🧬 COMBINED FARE COMPOSITION & SIMULATION</span>"
+                        f"<span style='color:#38bdf8; font-size:12px; font-weight:800; letter-spacing:0.8px;'>COMBINED FARE COMPOSITION & SIMULATION</span>"
                         f"<span style='color:#94a3b8; font-size:11px; font-weight:600;'>100% Itemized Tariff Breakdown</span>"
                         f"</div>"
                         f"<div style='position:relative; height:28px; border-radius:14px; overflow:hidden; "
@@ -846,7 +846,7 @@ else:
 
             with b_col2:
                 with st.container(border=True):
-                    st.subheader("📊 Component Cost Share")
+                    st.subheader("Component Cost Share")
                     donut_labels = [
                         "Base Fare", "Fuel Surcharge (YQ)",
                         "Airport Fees (UDF/PSF)", "Statutory GST"
@@ -880,7 +880,7 @@ else:
             st.markdown("---")
 
             # ── Booking Window Sensitivity ──
-            st.subheader("📈 Dynamic Booking Window Sensitivity Simulation")
+            st.subheader("Dynamic Booking Window Sensitivity Simulation")
             st.write("Yield management price acceleration — 50 days → 1 day before departure:")
 
             days_seq = np.arange(1, 51)
@@ -954,7 +954,7 @@ else:
             )
 
             st.download_button(
-                label="📄 Download Official Airfare Quotation (Executive PDF Report)",
+                label="Download Official Airfare Quotation (Executive PDF Report)",
                 data=pdf_bytes,
                 file_name=f"Flight_Quotation_{AIRPORTS[origin_city]['code']}_{AIRPORTS[dest_city]['code']}.pdf",
                 mime="application/pdf",
@@ -962,7 +962,7 @@ else:
                 use_container_width=True
             )
             st.caption(
-                "💡 Official 1-Page PDF Quotation — compatible with all phones, tablets & computers. "
+                "Official 1-Page PDF Quotation — compatible with all phones, tablets & computers. "
                 "Contains verified flight specs, itemised cost breakdown, and AI valuation advisory."
             )
 
@@ -970,7 +970,7 @@ else:
     #  TAB 2 — MULTI-AIRLINE PRICE MATRIX (pure HTML cards)
     # ══════════════════════════════════════════════════════════
     with tab_multi:
-        st.subheader(f"🏢 Multi-Carrier Pricing Matrix: {origin_city} ➔ {dest_city}")
+        st.subheader(f"Multi-Carrier Pricing Matrix: {origin_city} ➔ {dest_city}")
         st.write(
             f"Compare real-time online flight tariffs directly against trained Supervised ML model baselines for "
             f"**{flight_class} Class** with **{days_left} days left**:"
@@ -987,12 +987,12 @@ else:
         with mode_c1:
             pricing_source = st.radio(
                 "Select Pricing Intelligence Source:",
-                ["🔴 Live Real-Time Tariffs (Google Flights Feed)", "🤖 Supervised ML Model Benchmark"],
+                ["Live Real-Time Tariffs (Google Flights Feed)", "Supervised ML Model Benchmark"],
                 horizontal=True
             )
         with mode_c2:
             st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
-            st.link_button("🌐 Open Live Search on Google Flights", live_gflights_url, use_container_width=True)
+            st.link_button("Open Live Search on Google Flights", live_gflights_url, use_container_width=True)
 
         # Baseline ML multi-carrier comparison
         df_multi = get_multi_carrier_comparison(
@@ -1024,14 +1024,14 @@ else:
                 with lm_col2:
                     st.metric("Live Flights Online", f"{live_res['flight_count']} options", f"Travel Date: {live_res['date_str']}")
                 with lm_col3:
-                    st.metric("Live Feed Source", "🟢 Google Flights API", "15m Smart Cache")
+                    st.metric("Live Feed Source", "Google Flights API", "15m Smart Cache")
 
                 if selected_airline in live_res["carrier_best"]:
                     st.success(f"✅ Found live flights for your preferred carrier: **{selected_airline}** at **₹ {live_res['carrier_best'][selected_airline]['price']:,}**")
                 else:
                     st.info(f"ℹ️ **{selected_airline}** does not have published direct seats on Google Flights for **{dep_date_str}**. Showing available active carriers on this route below.")
 
-                st.markdown("#### ✈️ Live Bookable Airline Tariffs (Cheapest Found per Carrier)")
+                st.markdown("#### Live Bookable Airline Tariffs (Cheapest Found per Carrier)")
 
                 # Build live carrier cards
                 live_cards_html = []
@@ -1080,7 +1080,7 @@ else:
                 components.html(grid_live_doc, height=200 if len(live_cards_html) <= 3 else 390, scrolling=False)
 
                 st.markdown("---")
-                st.markdown("#### 📊 Live Market Fare vs ML Prediction by Carrier")
+                st.markdown("#### Live Market Fare vs ML Prediction by Carrier")
 
                 comp_carrier_data = []
                 for _, ml_r in df_multi.iterrows():
@@ -1108,13 +1108,13 @@ else:
                 fig_live_vs_ml = go.Figure()
                 fig_live_vs_ml.add_trace(go.Bar(
                     x=df_carrier_comp["Airline"], y=df_carrier_comp["ML Predicted Fare (₹)"],
-                    name="🤖 ML Prediction Baseline", marker_color="#3b82f6",
+                    name="ML Prediction Baseline", marker_color="#3b82f6",
                     text=df_carrier_comp["ML Predicted Fare (₹)"].apply(lambda x: f"₹{x:,.0f}" if pd.notnull(x) else "N/A"),
                     textposition="auto"
                 ))
                 fig_live_vs_ml.add_trace(go.Bar(
                     x=df_carrier_comp["Airline"], y=df_carrier_comp["Live Google Flights Fare (₹)"],
-                    name="🔴 Live Market (Google Flights)", marker_color="#10b981",
+                    name="Live Market (Google Flights)", marker_color="#10b981",
                     text=df_carrier_comp["Live Google Flights Fare (₹)"].apply(lambda x: f"₹{x:,.0f}" if pd.notnull(x) else "No Live Seat"),
                     textposition="auto"
                 ))
@@ -1130,7 +1130,7 @@ else:
                 )
                 st.plotly_chart(fig_live_vs_ml, use_container_width=True)
 
-                st.markdown("#### 📋 Real-Time Flights Schedule (Online OTA Feed)")
+                st.markdown("#### Real-Time Flights Schedule (Online OTA Feed)")
                 df_flights_table = pd.DataFrame(live_res["flights"])
                 st.dataframe(
                     df_flights_table[['airline', 'price', 'stops_label', 'duration_hours', 'departure_time', 'arrival_time', 'aircraft', 'source']]
@@ -1198,7 +1198,7 @@ else:
             components.html(grid_full_html, height=420, scrolling=False)
 
             st.markdown("---")
-            st.markdown("#### 📋 Comprehensive Carrier Comparison Table")
+            st.markdown("#### Comprehensive Carrier Comparison Table")
 
             fig_compare = px.bar(
                 df_multi, x="Airline", y="Estimated_Fare",
@@ -1231,7 +1231,7 @@ else:
     #  TAB 3 — INTERACTIVE FLIGHT MAP
     # ══════════════════════════════════════════════════════════
     with tab_map:
-        st.subheader(f"🗺️ Geospatial Flight Corridor: {origin_city} ➔ {dest_city}")
+        st.subheader(f"Geospatial Flight Corridor: {origin_city} ➔ {dest_city}")
         st.caption(
             f"Great-circle geodesic arc connecting "
             f"**{AIRPORTS[origin_city]['name']}** [{AIRPORTS[origin_city]['code']}] "
@@ -1248,11 +1248,11 @@ else:
         gm_col1, gm_col2 = st.columns([3.5, 1.5])
         with gm_col1:
             st.markdown(
-                "💡 Use the **layer switcher** (top-right) to toggle between "
+                "Use the **layer switcher** (top-right) to toggle between "
                 "Google Satellite, Streets, Terrain, and Traffic views."
             )
         with gm_col2:
-            st.link_button("🌐 Open in Google Maps", gmaps_url, use_container_width=True)
+            st.link_button("Open in Google Maps", gmaps_url, use_container_width=True)
 
         # Resolve stopover hub airport if flight has 1 stop
         stopover_info = None
@@ -1286,7 +1286,7 @@ else:
     #  TAB 4 — MODEL COMPARISON (SIH BENCHMARK)
     # ══════════════════════════════════════════════════════════
     with tab_benchmark:
-        st.subheader("📊 Machine Learning Performance & Model Benchmark")
+        st.subheader("Machine Learning Performance & Model Benchmark")
         st.write("Comprehensive cross-algorithm performance benchmark evaluated on **300,153 validated flights** (80/20 train-test partition):")
 
         if metrics_dict:
@@ -1306,7 +1306,7 @@ else:
                 use_container_width=True
             )
 
-            st.markdown("### 📈 Interactive Regression Diagnostics")
+            st.markdown("### Interactive Regression Diagnostics")
 
             # R² bar chart
             fig_bench = go.Figure()
@@ -1328,7 +1328,7 @@ else:
             )
             st.plotly_chart(fig_bench, use_container_width=True)
 
-            st.markdown("#### 📸 Publication Diagnostic Plots")
+            st.markdown("#### Publication Diagnostic Plots")
             pcol1, pcol2 = st.columns(2)
             with pcol1:
                 pva_img = os.path.join(PLOTS_DIR, "predicted_vs_actual.png")
@@ -1350,7 +1350,7 @@ else:
     #  TAB 5 — FEATURE DRIVERS & INTELLIGENCE
     # ══════════════════════════════════════════════════════════
     with tab_insights:
-        st.subheader("🔍 Airfare Component Decomposition & Driver Rankings")
+        st.subheader("Airfare Component Decomposition & Driver Rankings")
         st.write("Quantified percentage contribution of each feature using held-out permutation tests:")
 
         fi_col1, fi_col2 = st.columns([1.3, 1])
@@ -1382,7 +1382,7 @@ else:
 
         with fi_col2:
             if importance_list:
-                st.markdown("##### 🏆 Ranked Component Impact")
+                st.markdown("##### Ranked Component Impact")
                 df_imp_display = pd.DataFrame(importance_list).sort_values(
                     "Importance_Percent", ascending=False
                 )
@@ -1395,7 +1395,7 @@ else:
                 )
 
         st.markdown("---")
-        st.markdown("### 🛫 Pricing Insights & Yield Management Observations")
+        st.markdown("### Pricing Insights & Yield Management Observations")
         st.markdown("""
         1. **Cabin Class Disparity (86.1% Weight):**
            Business class tickets trade at a structural multiple of **4×–6×** compared to
