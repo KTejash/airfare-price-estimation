@@ -47,130 +47,172 @@ MODELS_DIR = os.path.join(BASE_DIR, "models")
 PLOTS_DIR = os.path.join(BASE_DIR, "plots")
 DATA_PATH = os.path.join(BASE_DIR, "data", "Clean_Dataset.csv")
 
-# ----------------- MEDIUM-DARK AVIATION THEME CSS -----------------
+# ----------------- FUTURISTIC DEEP-SPACE CYBER-AVIATION THEME CSS -----------------
 st.markdown("""
 <style>
-    /* Global medium-dark palette */
+    /* Futuristic Deep-Space Canvas with Ambient Cyan/Violet Flares */
     .stApp {
-        background-color: #111827;
-        color: #f1f5f9;
+        background: radial-gradient(circle at 12% 15%, rgba(14, 165, 233, 0.12) 0%, transparent 45%),
+                    radial-gradient(circle at 88% 85%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+                    radial-gradient(circle at 50% 50%, #050813 0%, #02050e 100%) !important;
+        background-attachment: fixed !important;
+        color: #f1f5f9 !important;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif !important;
     }
 
-    /* Typography */
+    /* Titanium Headings with Ambient Neon Glow */
     h1, h2, h3, h4, h5 {
         color: #f8fafc !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.3px !important;
+        text-shadow: 0 2px 14px rgba(56, 189, 248, 0.18) !important;
     }
     p, li, span, label {
         color: #cbd5e1 !important;
     }
 
-    /* Sidebar */
+    /* Futuristic Frosted Obsidian Sidebar */
     section[data-testid="stSidebar"] {
-        background-color: #0f172a !important;
-        border-right: 1px solid #1e3a5f;
+        background: linear-gradient(180deg, #030712 0%, #080e1d 50%, #030712 100%) !important;
+        border-right: 1px solid rgba(56, 189, 248, 0.22) !important;
+        box-shadow: 6px 0 32px rgba(0, 0, 0, 0.7) !important;
     }
     section[data-testid="stSidebar"] * {
         color: #e2e8f0 !important;
     }
 
-    /* Metric Cards */
+    /* Cyber Metric Cards */
     [data-testid="stMetricValue"] {
-        font-size: 1.85rem !important;
-        font-weight: 800 !important;
-        color: #38bdf8 !important;
+        font-size: 1.9rem !important;
+        font-weight: 900 !important;
+        color: #00f0ff !important;
+        text-shadow: 0 0 16px rgba(0, 240, 255, 0.45) !important;
+        letter-spacing: -0.5px !important;
     }
     [data-testid="stMetricLabel"] {
         font-size: 0.92rem !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
         color: #94a3b8 !important;
+        letter-spacing: 0.4px !important;
     }
     [data-testid="stMetricDelta"] {
         color: #34d399 !important;
-        font-size: 0.85rem !important;
+        font-size: 0.88rem !important;
+        font-weight: 700 !important;
     }
 
-    /* Container borders */
+    /* Futuristic Glassmorphism Card Containers */
     [data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: #1e293b !important;
-        border: 1px solid #334155 !important;
-        border-radius: 12px !important;
-        padding: 12px !important;
+        background: rgba(11, 19, 38, 0.75) !important;
+        backdrop-filter: blur(14px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+        border: 1px solid rgba(56, 189, 248, 0.22) !important;
+        border-radius: 14px !important;
+        padding: 14px !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.06) !important;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+    }
+    [data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlockBorderWrapper"]:hover {
+        border-color: rgba(56, 189, 248, 0.45) !important;
+        box-shadow: 0 10px 36px 0 rgba(0, 0, 0, 0.65), 0 0 18px rgba(56, 189, 248, 0.2) !important;
     }
 
-    /* Tabs */
+    /* Cyber Navigation Tabs */
     button[data-baseweb="tab"] {
         font-size: 0.95rem !important;
-        font-weight: 600 !important;
-        color: #64748b !important;
-        padding: 10px 14px !important;
+        font-weight: 700 !important;
+        color: #94a3b8 !important;
+        padding: 10px 18px !important;
+        transition: all 0.2s ease !important;
+    }
+    button[data-baseweb="tab"]:hover {
+        color: #38bdf8 !important;
     }
     button[data-baseweb="tab"][aria-selected="true"] {
-        color: #38bdf8 !important;
-        border-bottom: 2px solid #38bdf8 !important;
+        color: #00f0ff !important;
+        border-bottom: 2.5px solid #00f0ff !important;
+        text-shadow: 0 0 14px rgba(0, 240, 255, 0.6) !important;
     }
 
-    /* Primary buttons */
+    /* Electric Neon Action Buttons */
     div.stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%) !important;
+        background: linear-gradient(135deg, #0284c7 0%, #4f46e5 50%, #7c3aed 100%) !important;
         color: #ffffff !important;
         font-size: 1.05rem !important;
-        font-weight: 700 !important;
-        border-radius: 8px !important;
-        border: none !important;
-        padding: 0.65rem 1.4rem !important;
-        box-shadow: 0 4px 14px rgba(14,165,233,0.4);
-        transition: all 0.2s ease;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        padding: 0.7rem 1.5rem !important;
+        box-shadow: 0 4px 20px rgba(79, 70, 229, 0.5), 0 0 14px rgba(2, 132, 199, 0.4) !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     div.stButton > button[kind="primary"]:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(14,165,233,0.55);
+        transform: translateY(-2px) scale(1.01) !important;
+        box-shadow: 0 8px 30px rgba(79, 70, 229, 0.75), 0 0 22px rgba(56, 189, 248, 0.65) !important;
     }
 
-    /* Secondary buttons */
+    /* Secondary Glass Buttons */
     div.stButton > button:not([kind="primary"]) {
-        background: #1e293b !important;
-        color: #94a3b8 !important;
-        border: 1px solid #334155 !important;
-        border-radius: 8px !important;
+        background: rgba(15, 23, 42, 0.8) !important;
+        color: #cbd5e1 !important;
+        border: 1px solid rgba(56, 189, 248, 0.25) !important;
+        border-radius: 9px !important;
+        transition: all 0.2s ease !important;
     }
-
-    /* Download button */
-    div.stDownloadButton > button {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    div.stButton > button:not([kind="primary"]):hover {
+        border-color: #38bdf8 !important;
         color: #ffffff !important;
-        font-weight: 700 !important;
-        border-radius: 8px !important;
-        border: none !important;
-        font-size: 1rem !important;
-        box-shadow: 0 4px 12px rgba(5,150,105,0.4);
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.3) !important;
     }
 
-    /* DataFrame table */
+    /* Download Executive PDF Button */
+    div.stDownloadButton > button {
+        background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0284c7 100%) !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        font-size: 1.02rem !important;
+        box-shadow: 0 4px 20px rgba(13, 148, 136, 0.45) !important;
+        transition: all 0.25s ease !important;
+    }
+    div.stDownloadButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 28px rgba(13, 148, 136, 0.7), 0 0 16px rgba(56, 189, 248, 0.5) !important;
+    }
+
+    /* Cyber Table View */
     [data-testid="stDataFrame"] {
-        border: 1px solid #334155 !important;
-        border-radius: 8px !important;
+        border: 1px solid rgba(56, 189, 248, 0.25) !important;
+        border-radius: 10px !important;
+        background: rgba(11, 19, 38, 0.6) !important;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45) !important;
     }
 
-    /* Progress bars */
-    div[data-testid="stProgressBar"] > div {
-        border-radius: 6px !important;
+    /* Neon Dividers */
+    hr {
+        border-color: rgba(56, 189, 248, 0.2) !important;
+        box-shadow: 0 0 8px rgba(56, 189, 248, 0.12) !important;
     }
 
-    /* Dividers */
-    hr { border-color: #1e3a5f !important; }
-
-    /* Caption text */
+    /* Captions */
     .stCaption, small {
-        color: #64748b !important;
-        font-size: 0.82rem !important;
+        color: #94a3b8 !important;
+        font-size: 0.84rem !important;
     }
 
-    /* Input widgets */
+    /* Input Widgets with Dark Glass Fill */
     div[data-testid="stSelectbox"] > div > div,
     div[data-testid="stRadio"] {
-        background-color: #1e293b !important;
-        border-radius: 8px !important;
+        background-color: rgba(15, 23, 42, 0.85) !important;
+        border: 1px solid rgba(56, 189, 248, 0.25) !important;
+        border-radius: 10px !important;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+    }
+    div[data-testid="stSelectbox"] > div > div:hover {
+        border-color: rgba(56, 189, 248, 0.55) !important;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.25) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -215,8 +257,9 @@ st.markdown("---")
 
 # ----------------- SIDEBAR -----------------
 st.sidebar.markdown("""
-<div style="background:linear-gradient(135deg,#0ea5e9,#2563eb);
-            border-radius:10px; padding:12px 14px; margin-bottom:12px; text-align:center;">
+<div style="background:linear-gradient(135deg,#0284c7 0%,#4338ca 100%);
+            border:1px solid rgba(56,189,248,0.35); box-shadow:0 4px 20px rgba(2,132,199,0.35);
+            border-radius:12px; padding:12px 14px; margin-bottom:12px; text-align:center;">
     <div style="color:#fff; font-weight:800; font-size:15px;">✈ Flight Configurator</div>
     <div style="color:#bae6fd; font-size:11px; margin-top:3px;">
         Set route, class & booking window
@@ -497,9 +540,9 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
 if not st.session_state.has_calculated:
     # WELCOME BANNER
     landing_html = (
-        '<div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f2a47 100%); '
-        'border:1.5px solid #1e40af; border-radius:16px; padding:38px 28px; text-align:center; margin:20px 0; '
-        'box-shadow:0 10px 30px rgba(0,0,0,0.5);">'
+        '<div style="background:radial-gradient(circle at top right, rgba(14,165,233,0.18), transparent 70%), linear-gradient(135deg, #090e1a 0%, #0e172a 50%, #090e1a 100%); '
+        'border:1.5px solid rgba(56,189,248,0.35); border-radius:18px; padding:38px 28px; text-align:center; margin:20px 0; '
+        'box-shadow:0 12px 40px rgba(0,0,0,0.7), 0 0 24px rgba(56,189,248,0.2);">'
         '<div style="display:inline-flex; align-items:center; justify-content:center; width:68px; height:68px; '
         'background:rgba(14,165,233,0.15); border:2px solid #38bdf8; border-radius:50%; margin-bottom:16px; '
         'box-shadow:0 0 24px rgba(56,189,248,0.45);">'
@@ -1005,14 +1048,14 @@ else:
         )
 
         carrier_colors = {
-            "IndiGo":        "#38bdf8",
-            "Air India":     "#f43f5e",
-            "Vistara":       "#a855f7",
-            "AirAsia India": "#fb923c",
-            "SpiceJet":      "#fbbf24",
-            "GO FIRST":      "#34d399",
-            "Akasa Air":     "#c084fc",
-            "Air India Express": "#f97316"
+            "IndiGo":        "#00f0ff", # Neon Cyber Cyan
+            "Air India":     "#ff2a5f", # Vivid Neon Crimson
+            "Vistara":       "#a855f7", # Electric Purple
+            "AirAsia India": "#ff7700", # Luminescent Solar Orange
+            "SpiceJet":      "#fbbf24", # Laser Amber
+            "GO FIRST":      "#10b981", # Emerald Matrix Green
+            "Akasa Air":     "#c084fc", # Prism Violet
+            "Air India Express": "#f43f5e" # Coral Rose
         }
 
         if "Live Real-Time" in pricing_source:
@@ -1315,7 +1358,7 @@ else:
 
             # R² bar chart
             fig_bench = go.Figure()
-            colors_bench = ['#475569', '#475569', '#0ea5e9', '#34d399', '#64748b']
+            colors_bench = ['#334155', '#4f46e5', '#06b6d4', '#10b981', '#8b5cf6']
             fig_bench.add_trace(go.Bar(
                 x=metrics_df['Model'], y=metrics_df['R2'],
                 name='R² Score',
@@ -1369,7 +1412,7 @@ else:
                     df_imp, x="Importance_Percent", y="Feature", orientation="h",
                     title="Relative Feature Importance Contribution (%)",
                     color="Importance_Percent",
-                    color_continuous_scale=[[0, "#1e3a5f"], [0.5, "#0ea5e9"], [1, "#38bdf8"]],
+                    color_continuous_scale=[[0, "#4338ca"], [0.4, "#0284c7"], [0.8, "#06b6d4"], [1, "#34d399"]],
                     template="plotly_dark", text="Importance_Percent"
                 )
                 fig_imp.update_traces(
