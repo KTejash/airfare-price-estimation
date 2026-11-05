@@ -203,31 +203,13 @@ if "has_calculated" not in st.session_state:
     st.session_state.has_calculated = False
 
 # ----------------- HEADER -----------------
-col_hdr1, col_hdr2 = st.columns([3.8, 1.4])
-with col_hdr1:
-    st.title("✈️ Airfare Component Price Estimation & Yield Engine")
-    st.markdown(
-        "<span style='color:#64748b; font-size:13px;'>"
-        "Smart India Hackathon (SIH 2026 — SIH26056) • Course: Supervised Learning (INT395)"
-        "</span>",
-        unsafe_allow_html=True
-    )
-
-with col_hdr2:
-    st.markdown("""
-    <div style="background:#1e293b; border:1px solid #0ea5e9; border-radius:10px;
-                padding:12px 16px; text-align:center;">
-        <div style="color:#38bdf8; font-weight:800; font-size:12px; letter-spacing:1px;">
-            🏛️ SIH 2026 REFERENCE
-        </div>
-        <div style="color:#f8fafc; font-weight:700; font-size:14px; margin-top:4px;">
-            SIH26056
-        </div>
-        <div style="color:#34d399; font-weight:600; font-size:12px;">
-            97.43% R² Accuracy
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+st.title("✈️ Airfare Component Price Estimation & Yield Engine")
+st.markdown(
+    "<span style='color:#64748b; font-size:13px;'>"
+    "Smart India Hackathon (SIH 2026 — SIH26056) • Course: Supervised Learning (INT395)"
+    "</span>",
+    unsafe_allow_html=True
+)
 
 st.markdown("---")
 
