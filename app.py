@@ -203,7 +203,7 @@ if "has_calculated" not in st.session_state:
     st.session_state.has_calculated = False
 
 # ----------------- HEADER -----------------
-st.title("Airfare Component Price Estimation & Yield Engine")
+st.title("✈ Airfare Component Price Estimation & Yield Engine")
 st.markdown(
     "<span style='color:#64748b; font-size:13px;'>"
     "Smart India Hackathon (SIH 2026 — SIH26056) • Course: Supervised Learning (INT395)"
@@ -217,7 +217,7 @@ st.markdown("---")
 st.sidebar.markdown("""
 <div style="background:linear-gradient(135deg,#0ea5e9,#2563eb);
             border-radius:10px; padding:12px 14px; margin-bottom:12px; text-align:center;">
-    <div style="color:#fff; font-weight:800; font-size:15px;">Flight Configurator</div>
+    <div style="color:#fff; font-weight:800; font-size:15px;">✈ Flight Configurator</div>
     <div style="color:#bae6fd; font-size:11px; margin-top:3px;">
         Set route, class & booking window
     </div>
@@ -236,7 +236,7 @@ default_src_lbl = format_airport_label("Delhi") if "Delhi" in AIRPORTS else airp
 default_dst_lbl = format_airport_label("Mumbai") if "Mumbai" in AIRPORTS else airport_options[1]
 
 origin_selection = st.sidebar.selectbox(
-    "Origin Airport (Name — City [IATA])",
+    "🛫 Origin Airport (Name — City [IATA])",
     airport_options,
     index=airport_options.index(default_src_lbl)
 )
@@ -246,24 +246,24 @@ dest_airport_options = [lbl for lbl in airport_options if label_to_city[lbl] != 
 dest_default_idx = dest_airport_options.index(default_dst_lbl) if default_dst_lbl in dest_airport_options else 0
 
 dest_selection = st.sidebar.selectbox(
-    "Destination Airport (Name — City [IATA])",
+    "🛬 Destination Airport (Name — City [IATA])",
     dest_airport_options,
     index=dest_default_idx
 )
 dest_city = label_to_city[dest_selection]
 
-flight_class = st.sidebar.radio("Cabin Class", ["Economy", "Business"], horizontal=True)
+flight_class = st.sidebar.radio("💺 Cabin Class", ["Economy", "Business"], horizontal=True)
 carrier_names = ["All Airlines (Compare All)"] + [c["name"] for c in CARRIERS]
-selected_airline = st.sidebar.selectbox("Preferred Carrier", carrier_names, index=0)
+selected_airline = st.sidebar.selectbox("✈ Preferred Carrier", carrier_names, index=0)
 is_compare_all = (selected_airline == "All Airlines (Compare All)")
 
 col_s1, col_s2 = st.sidebar.columns(2)
 with col_s1:
-    dep_time = st.selectbox("Departure", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=1)
+    dep_time = st.selectbox("🛫 Departure", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=1)
 with col_s2:
-    arr_time = st.selectbox("Arrival", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=3)
+    arr_time = st.selectbox("🛬 Arrival", ["Early_Morning", "Morning", "Afternoon", "Evening", "Night", "Late_Night"], index=3)
 
-days_left = st.sidebar.slider("Days Before Departure", min_value=1, max_value=50, value=24)
+days_left = st.sidebar.slider("📅 Days Before Departure", min_value=1, max_value=50, value=24)
 
 # Real-time route computation
 route_info = get_route_details(origin_city, dest_city)
@@ -271,15 +271,15 @@ route_info = get_route_details(origin_city, dest_city)
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"""
 <div style="background:#1e293b; border-radius:8px; padding:10px 12px; border-left:3px solid #0ea5e9;">
-    <div style="color:#38bdf8; font-weight:700; font-size:12px; margin-bottom:6px;">ROUTE TELEMETRY</div>
-    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">Distance: <b>{route_info['distance_km']} km</b> ({route_info['distance_miles']} mi)</div>
-    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">Duration: <b>{route_info['est_duration']} hrs</b></div>
-    <div style="color:#34d399; font-size:12px;">CO₂: ~{route_info['co2_kg']} kg/passenger</div>
+    <div style="color:#38bdf8; font-weight:700; font-size:12px; margin-bottom:6px;">📡 ROUTE TELEMETRY</div>
+    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">✈ Distance: <b>{route_info['distance_km']} km</b> ({route_info['distance_miles']} mi)</div>
+    <div style="color:#e2e8f0; font-size:13px; margin-bottom:3px;">⏱ Duration: <b>{route_info['est_duration']} hrs</b></div>
+    <div style="color:#34d399; font-size:12px;">🌱 CO₂: ~{route_info['co2_kg']} kg/passenger</div>
 </div>
 """, unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
-btn_sidebar = st.sidebar.button("Calculate & Estimate Airfare", type="primary", use_container_width=True)
+btn_sidebar = st.sidebar.button("🚀 Calculate & Estimate Airfare", type="primary", use_container_width=True)
 if btn_sidebar:
     st.session_state.has_calculated = True
 
@@ -530,7 +530,7 @@ if not st.session_state.has_calculated:
 
     c_btn1, c_btn2, c_btn3 = st.columns([1, 2, 1])
     with c_btn2:
-        if st.button("Calculate & Show Airfare Breakdown", type="primary", use_container_width=True):
+        if st.button("🚀 Calculate & Show Airfare Breakdown", type="primary", use_container_width=True):
             st.session_state.has_calculated = True
             st.rerun()
 
@@ -547,17 +547,17 @@ else:
             unsafe_allow_html=True
         )
     with rcol2:
-        if st.button("Recalculate / Update", use_container_width=True):
+        if st.button("🔄 Recalculate / Update", use_container_width=True):
             st.session_state.has_calculated = True
             st.rerun()
 
     # ── TABS ──
     tab_fare, tab_multi, tab_map, tab_benchmark, tab_insights = st.tabs([
-        "Fare Prediction & Bill",
-        "Multi-Airline Price Matrix",
-        "Interactive Flight Map",
-        "AI Model Benchmark & Performance",
-        "Feature Drivers & Intelligence"
+        "🎯 Fare Prediction & Bill",
+        "🏢 Multi-Airline Price Matrix",
+        "🗺️ Interactive Flight Map",
+        "📊 Machine Learning Performance & Benchmark",
+        "🔍 Feature Drivers & Intelligence"
     ])
 
     # ══════════════════════════════════════════════════════════
@@ -700,7 +700,7 @@ else:
 
             with b_col1:
                 with st.container(border=True):
-                    st.subheader("Component Cost Breakdown (Bill of Airfare)")
+                    st.subheader("🧾 Component Cost Breakdown (Bill of Airfare)")
                     st.caption(
                         "Detailed decomposition of airfare into base operating tariff, "
                         "fuel surcharges, and statutory aviation fees."
@@ -846,7 +846,7 @@ else:
 
             with b_col2:
                 with st.container(border=True):
-                    st.subheader("Component Cost Share")
+                    st.subheader("📊 Component Cost Share")
                     donut_labels = [
                         "Base Fare", "Fuel Surcharge (YQ)",
                         "Airport Fees (UDF/PSF)", "Statutory GST"
@@ -880,7 +880,7 @@ else:
             st.markdown("---")
 
             # ── Booking Window Sensitivity ──
-            st.subheader("Dynamic Booking Window Sensitivity Simulation")
+            st.subheader("📈 Dynamic Booking Window Sensitivity Simulation")
             st.write("Yield management price acceleration — 50 days → 1 day before departure:")
 
             days_seq = np.arange(1, 51)
@@ -954,7 +954,7 @@ else:
             )
 
             st.download_button(
-                label="Download Official Airfare Quotation (Executive PDF Report)",
+                label="📄 Download Official Airfare Quotation (Executive PDF Report)",
                 data=pdf_bytes,
                 file_name=f"Flight_Quotation_{AIRPORTS[origin_city]['code']}_{AIRPORTS[dest_city]['code']}.pdf",
                 mime="application/pdf",
@@ -970,7 +970,7 @@ else:
     #  TAB 2 — MULTI-AIRLINE PRICE MATRIX (pure HTML cards)
     # ══════════════════════════════════════════════════════════
     with tab_multi:
-        st.subheader(f"Multi-Carrier Pricing Matrix: {origin_city} ➔ {dest_city}")
+        st.subheader(f"🏢 Multi-Carrier Pricing Matrix: {origin_city} ➔ {dest_city}")
         st.write(
             f"Compare real-time online flight tariffs directly against trained Supervised ML model baselines for "
             f"**{flight_class} Class** with **{days_left} days left**:"
@@ -1231,7 +1231,7 @@ else:
     #  TAB 3 — INTERACTIVE FLIGHT MAP
     # ══════════════════════════════════════════════════════════
     with tab_map:
-        st.subheader(f"Geospatial Flight Corridor: {origin_city} ➔ {dest_city}")
+        st.subheader(f"🗺️ Geospatial Flight Corridor: {origin_city} ➔ {dest_city}")
         st.caption(
             f"Great-circle geodesic arc connecting "
             f"**{AIRPORTS[origin_city]['name']}** [{AIRPORTS[origin_city]['code']}] "
@@ -1286,7 +1286,7 @@ else:
     #  TAB 4 — MODEL COMPARISON (SIH BENCHMARK)
     # ══════════════════════════════════════════════════════════
     with tab_benchmark:
-        st.subheader("Machine Learning Performance & Model Benchmark")
+        st.subheader("📊 Machine Learning Performance & Model Benchmark")
         st.write("Comprehensive cross-algorithm performance benchmark evaluated on **300,153 validated flights** (80/20 train-test partition):")
 
         if metrics_dict:
@@ -1350,7 +1350,7 @@ else:
     #  TAB 5 — FEATURE DRIVERS & INTELLIGENCE
     # ══════════════════════════════════════════════════════════
     with tab_insights:
-        st.subheader("Airfare Component Decomposition & Driver Rankings")
+        st.subheader("🔍 Airfare Component Decomposition & Driver Rankings")
         st.write("Quantified percentage contribution of each feature using held-out permutation tests:")
 
         fi_col1, fi_col2 = st.columns([1.3, 1])
@@ -1395,7 +1395,7 @@ else:
                 )
 
         st.markdown("---")
-        st.markdown("### Pricing Insights & Yield Management Observations")
+        st.markdown("### 🛫 Pricing Insights & Yield Management Observations")
         st.markdown("""
         1. **Cabin Class Disparity (86.1% Weight):**
            Business class tickets trade at a structural multiple of **4×–6×** compared to
