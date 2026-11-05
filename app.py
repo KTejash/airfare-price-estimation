@@ -496,37 +496,42 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
 # ─────────────────────────────────────────────────────────────
 if not st.session_state.has_calculated:
     # WELCOME BANNER
-    st.markdown(f"""
-    <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f2a47 100%);
-                border:1.5px solid #1e40af; border-radius:16px; padding:36px 28px;
-                text-align:center; margin:20px 0;">
-        
-        <h2 style="color:#38bdf8 !important; font-size:1.8rem; margin-bottom:10px;">
-            Ready to Analyze Your Airfare Route
-        </h2>
-        <p style="color:#94a3b8; font-size:15px; max-width:640px; margin:0 auto 22px auto;">
-            Currently configured:
-            <b style="color:#f8fafc;">{origin_city} ({AIRPORTS[origin_city]['code']})</b> ➔
-            <b style="color:#f8fafc;">{dest_city} ({AIRPORTS[dest_city]['code']})</b> on
-            <b style="color:#f8fafc;">{selected_airline}</b>
-            ({flight_class} Class, {days_left} days before departure).
-        </p>
-        <div style="display:flex; justify-content:center; gap:24px; flex-wrap:wrap; margin-bottom:24px;">
-            <div style="background:#1e3a5f; border-radius:10px; padding:12px 20px; min-width:130px;">
-                <div style="color:#38bdf8; font-size:20px; font-weight:800;">{route_info['distance_km']} km</div>
-                <div style="color:#64748b; font-size:11px; margin-top:2px;">GREAT-CIRCLE DIST.</div>
-            </div>
-            <div style="background:#1e3a5f; border-radius:10px; padding:12px 20px; min-width:130px;">
-                <div style="color:#fbbf24; font-size:20px; font-weight:800;">{route_info['est_duration']} hrs</div>
-                <div style="color:#64748b; font-size:11px; margin-top:2px;">EST. FLIGHT TIME</div>
-            </div>
-            <div style="background:#1e3a5f; border-radius:10px; padding:12px 20px; min-width:130px;">
-                <div style="color:#34d399; font-size:20px; font-weight:800;">{route_info['co2_kg']} kg</div>
-                <div style="color:#64748b; font-size:11px; margin-top:2px;">CO₂ FOOTPRINT</div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    landing_html = (
+        '<div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f2a47 100%); '
+        'border:1.5px solid #1e40af; border-radius:16px; padding:38px 28px; text-align:center; margin:20px 0; '
+        'box-shadow:0 10px 30px rgba(0,0,0,0.5);">'
+        '<div style="display:inline-flex; align-items:center; justify-content:center; width:68px; height:68px; '
+        'background:rgba(14,165,233,0.15); border:2px solid #38bdf8; border-radius:50%; margin-bottom:16px; '
+        'box-shadow:0 0 24px rgba(56,189,248,0.45);">'
+        '<span style="font-size:32px; color:#38bdf8; filter:drop-shadow(0 0 8px #38bdf8);">&#x2708;</span>'
+        '</div>'
+        '<h2 style="color:#38bdf8 !important; font-size:1.85rem; margin:0 0 10px 0; font-weight:800;">'
+        'Ready to Analyze Your Airfare Route'
+        '</h2>'
+        f'<p style="color:#94a3b8; font-size:15px; max-width:640px; margin:0 auto 24px auto; line-height:1.6;">'
+        f'Currently configured: '
+        f'<b style="color:#f8fafc;">{origin_city} ({AIRPORTS[origin_city]["code"]})</b> ➔ '
+        f'<b style="color:#f8fafc;">{dest_city} ({AIRPORTS[dest_city]["code"]})</b> on '
+        f'<b style="color:#38bdf8;">{selected_airline}</b> '
+        f'({flight_class} Class, {days_left} days before departure).'
+        '</p>'
+        '<div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-bottom:10px;">'
+        '<div style="background:rgba(30,58,95,0.7); border:1px solid rgba(56,189,248,0.35); border-radius:12px; padding:14px 22px; min-width:140px; box-shadow:0 4px 14px rgba(0,0,0,0.3);">'
+        f'<div style="color:#38bdf8; font-size:22px; font-weight:800;">{route_info["distance_km"]} km</div>'
+        '<div style="color:#94a3b8; font-size:11px; font-weight:700; margin-top:3px; letter-spacing:0.5px;">GREAT-CIRCLE DIST.</div>'
+        '</div>'
+        '<div style="background:rgba(30,58,95,0.7); border:1px solid rgba(251,191,36,0.35); border-radius:12px; padding:14px 22px; min-width:140px; box-shadow:0 4px 14px rgba(0,0,0,0.3);">'
+        f'<div style="color:#fbbf24; font-size:22px; font-weight:800;">{route_info["est_duration"]} hrs</div>'
+        '<div style="color:#94a3b8; font-size:11px; font-weight:700; margin-top:3px; letter-spacing:0.5px;">EST. FLIGHT TIME</div>'
+        '</div>'
+        '<div style="background:rgba(30,58,95,0.7); border:1px solid rgba(52,211,153,0.35); border-radius:12px; padding:14px 22px; min-width:140px; box-shadow:0 4px 14px rgba(0,0,0,0.3);">'
+        f'<div style="color:#34d399; font-size:22px; font-weight:800;">{route_info["co2_kg"]} kg</div>'
+        '<div style="color:#94a3b8; font-size:11px; font-weight:700; margin-top:3px; letter-spacing:0.5px;">CO₂ FOOTPRINT</div>'
+        '</div>'
+        '</div>'
+        '</div>'
+    )
+    st.markdown(landing_html, unsafe_allow_html=True)
 
     c_btn1, c_btn2, c_btn3 = st.columns([1, 2, 1])
     with c_btn2:
