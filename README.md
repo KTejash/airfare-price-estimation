@@ -189,6 +189,9 @@ If using this project for academic reference, hackathon benchmarks, or coursewor
   note = {Smart India Hackathon 2026 (SIH26056), Supervised Learning (INT395)}
 }
 ```
+## Contributors
+
+- GPCSantosh — Project contribution and documentation improvements.
 
 ---
 
