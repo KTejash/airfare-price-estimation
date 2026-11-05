@@ -4,7 +4,7 @@
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.25+-FF4B4B.svg)](https://streamlit.io)
 [![Machine Learning](https://img.shields.io/badge/Model-Random%20Forest%20(97.43%25%20R%C2%B2)-success.svg)](https://scikit-learn.org)
 [![Google Flights Live](https://img.shields.io/badge/Live%20Data-Google%20Flights%20API-4285F4.svg)](https://www.google.com/travel/flights)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Smart India Hackathon (SIH 2026 — Problem Statement: SIH26056)**  
 **Course:** Supervised Learning (INT395) | Lovely Professional University  
