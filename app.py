@@ -334,48 +334,14 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
         sname = s.get("name", "Connecting Hub")
         stier = s.get("tier", "Hub")
         stop_js = f"""
-  // ── 1-STOP FLIGHT ──
-  var arc1 = arcPath([{slat_p},{slon_p}],[{slat2_p},{slon2_p}],60,0.18);
-  var arc2 = arcPath([{slat3_p},{slon3_p}],[{slat4_p},{slon4_p}],60,0.18);
-  var arc  = arc1.concat(arc2);
-  [arc1,arc2].forEach(function(a){{
-    L.polyline(a,{{color:'#38bdf8',weight:16,opacity:0.07}}).addTo(map);
-    L.polyline(a,{{color:'#38bdf8',weight:7, opacity:0.20}}).addTo(map);
-    L.polyline(a,{{color:'#fbbf24',weight:2.5,opacity:1,dashArray:'10 6'}}).addTo(map);
-  }});
-  var stopH=`<div style="position:relative;width:36px;height:36px;">
-    <div class="pulse-ring" style="background:#f59e0b;opacity:0.5;animation-delay:.2s;"></div>
-    <div class="pulse-ring" style="background:#f59e0b;opacity:0.3;animation-delay:.9s;"></div>
-    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-      width:18px;height:18px;background:#f59e0b;border-radius:50%;
-      border:3px solid #fff;box-shadow:0 0 14px #f59e0b;"></div>
-  </div>`;
-  L.marker([{slat5_p},{slon5_p}],{{icon:L.divIcon({{html:stopH,className:'',iconSize:[36,36],iconAnchor:[18,18]}}),zIndexOffset:150}})
-    .addTo(map)
-    .bindPopup(`<b style="color:#f59e0b;font-size:14px;">&#x1F504; STOPOVER</b><br>
-      <b>{sname}</b><br>IATA:<b>{scode}</b> | Tier:{stier}<br>
-      <span style="color:#94a3b8;">~1.5-2 hr layover</span>`);
-  ['Leg&nbsp;1','Leg&nbsp;2'].forEach(function(lbl,i){{
-    var midPt=i===0?arc1[Math.floor(arc1.length/2)]:arc2[Math.floor(arc2.length/2)];
-    L.marker(midPt,{{icon:L.divIcon({{html:`<div style="background:rgba(10,15,30,0.88);color:#fbbf24;border:1.5px solid #fbbf24;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;pointer-events:none;">&#x2708; `+lbl+`</div>`,className:'',iconAnchor:[32,12]}}),interactive:false,zIndexOffset:400}}).addTo(map);
-  }});
-""".format(
-    slat_p=f"{lat1},{lon1}", slon_p=f"{slat},{slon}",
-    slat2_p=f"{lat1}", slon2_p="",
-    slat3_p="", slon3_p="",
-    slat4_p="", slon4_p="",
-    slat5_p=slat, slon5_p=slon,
-            )
-        # rebuild with correct values using simple format
-        stop_js = f"""
-  // 1-STOP FLIGHT: two arcs
-  var arc1 = arcPath([{lat1},{lon1}],[{slat},{slon}],60,0.18);
-  var arc2 = arcPath([{slat},{slon}],[{lat2},{lon2}],60,0.18);
-  var arc  = arc1.concat(arc2);
-  [arc1,arc2].forEach(function(a){{
-    L.polyline(a,{{color:'#38bdf8',weight:16,opacity:0.07}}).addTo(map);
-    L.polyline(a,{{color:'#38bdf8',weight:7, opacity:0.20}}).addTo(map);
-    L.polyline(a,{{color:'#fbbf24',weight:2.5,opacity:1.0,dashArray:'10 6'}}).addTo(map);
+  // 1-STOP FLIGHT: linear flight corridors via layover hub
+  var leg1 = linearPath([{lat1},{lon1}],[{slat},{slon}],60);
+  var leg2 = linearPath([{slat},{slon}],[{lat2},{lon2}],60);
+  var arc  = leg1.concat(leg2);
+  [leg1,leg2].forEach(function(leg){{
+    L.polyline(leg,{{color:'#38bdf8',weight:14,opacity:0.08}}).addTo(map);
+    L.polyline(leg,{{color:'#38bdf8',weight:6, opacity:0.25}}).addTo(map);
+    L.polyline(leg,{{color:'#fbbf24',weight:2.5,opacity:1.0,dashArray:'10 6'}}).addTo(map);
   }});
   var stopH=`<div style="position:relative;width:36px;height:36px;">
     <div class="pulse-ring" style="background:#f59e0b;opacity:0.5;animation-delay:.2s;"></div>
@@ -389,17 +355,17 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
       <b>{sname}</b><br>IATA:<b>{scode}</b> | {stier}<br>
       <span style="color:#94a3b8;">approx 1.5-2 hr layover</span>`);
   ['Leg 1','Leg 2'].forEach(function(lbl,i){{
-    var midPt=i===0?arc1[Math.floor(arc1.length/2)]:arc2[Math.floor(arc2.length/2)];
+    var midPt=i===0?leg1[Math.floor(leg1.length/2)]:leg2[Math.floor(leg2.length/2)];
     L.marker(midPt,{{icon:L.divIcon({{html:`<div style="background:rgba(10,15,30,.9);color:#fbbf24;border:1.5px solid #fbbf24;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;pointer-events:none;">` + lbl + `</div>`,className:'',iconAnchor:[32,12]}}),interactive:false,zIndexOffset:400}}).addTo(map);
   }});
 """
         info_stop = f"<div class='row' style='color:#f59e0b;'>&#x1F504; 1-Stop via {scode}</div>"
     else:
         stop_js = f"""
-  // DIRECT FLIGHT: single arc
-  var arc = arcPath([{lat1},{lon1}],[{lat2},{lon2}],100,0.20);
-  L.polyline(arc,{{color:'#38bdf8',weight:18,opacity:0.08}}).addTo(map);
-  L.polyline(arc,{{color:'#38bdf8',weight:8, opacity:0.22}}).addTo(map);
+  // DIRECT FLIGHT: straight linear route from source to destination
+  var arc = linearPath([{lat1},{lon1}],[{lat2},{lon2}],100);
+  L.polyline(arc,{{color:'#38bdf8',weight:16,opacity:0.08}}).addTo(map);
+  L.polyline(arc,{{color:'#38bdf8',weight:7, opacity:0.25}}).addTo(map);
   L.polyline(arc,{{color:'#fbbf24',weight:3, opacity:1.0,dashArray:'12 7'}}).addTo(map);
   var mid=arc[Math.floor(arc.length/2)];
   L.marker(mid,{{icon:L.divIcon({{html:`<div style="background:rgba(10,15,30,.88);color:#fbbf24;border:1.5px solid #fbbf24;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap;pointer-events:none;">&#x2708; {distance_km} km | {duration_hrs} hrs</div>`,className:'',iconAnchor:[80,12]}}),interactive:false,zIndexOffset:500}}).addTo(map);
@@ -430,17 +396,16 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
   .leaflet-bar a:hover{{background:#1e3a5f!important;}}
   @keyframes pulseRing{{0%{{transform:scale(.6);opacity:.9;}}70%{{transform:scale(2);opacity:0;}}100%{{transform:scale(2);opacity:0;}}}}
   .pulse-ring{{border-radius:50%;animation:pulseRing 2s ease-out infinite;position:absolute;top:0;left:0;right:0;bottom:0;}}
-  @keyframes planeFly{{0%{{filter:drop-shadow(0 0 5px #fbbf24);}}50%{{filter:drop-shadow(0 0 14px #fbbf24) drop-shadow(0 0 7px #f59e0b);}}100%{{filter:drop-shadow(0 0 5px #fbbf24);}}}}
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div class="info-box">
   <div class="row">&#x1F6EB; <b>{src_info["code"]}</b> &rarr; <b>{dst_info["code"]}</b></div>
-  <div class="row">&#x1F4CF; <b>{distance_km} km</b> great-circle</div>
+  <div class="row">&#x1F4CF; <b>{distance_km} km</b> direct route</div>
   <div class="row">&#x23F1; Est. <b>{duration_hrs} hrs</b></div>
   {info_stop}
-  <div class="row" style="color:#94a3b8;font-size:11px;">&#x2708; Simulation active</div>
+  <div class="row" style="color:#94a3b8;font-size:11px;">&#x2708; Live simulation active</div>
 </div>
 <script>
   var map=L.map("map",{{zoomControl:true,attributionControl:false}});
@@ -453,10 +418,21 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
   // fitBounds with maxZoom:8 prevents zooming in too close on short routes
   map.fitBounds([[{min_lat:.4f},{min_lon:.4f}],[{max_lat:.4f},{max_lon:.4f}]],{{padding:[55,55],maxZoom:8}});
 
-  function arcPath(p1,p2,n,c){{
-    var pts=[],dLat=p2[0]-p1[0],dLon=p2[1]-p1[1],dist=Math.sqrt(dLat*dLat+dLon*dLon);
-    for(var i=0;i<=n;i++){{var t=i/n,lt=p1[0]+dLat*t,ln=p1[1]+dLon*t,off=Math.sin(t*Math.PI)*dist*c;
-      pts.push([lt+(-dLon/dist)*off,ln+(dLat/dist)*off]);}}return pts;
+  // Linear flight interpolation from p1 to p2 for realistic straight airways
+  function linearPath(p1,p2,n){{
+    var pts=[],dLat=p2[0]-p1[0],dLon=p2[1]-p1[1];
+    for(var i=0;i<=n;i++){{
+      var t=i/n;
+      pts.push([p1[0]+dLat*t, p1[1]+dLon*t]);
+    }}
+    return pts;
+  }}
+
+  // Calculate compass heading (bearing in degrees) from p1 to p2
+  function getHeading(p1,p2){{
+    var dLat=p2[0]-p1[0];
+    var dLon=(p2[1]-p1[1])*Math.cos(((p1[0]+p2[0])/2)*Math.PI/180);
+    return (Math.atan2(dLon,dLat)*180/Math.PI+360)%360;
   }}
 
   {stop_js}
@@ -485,13 +461,25 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
       <b>{dst_info["name"]}</b><br>IATA:<b>{dst_info["code"]}</b> Tier:{dst_info["tier"]}<br>
       <span style="color:#94a3b8;">{lat2:.4f}N {lon2:.4f}E</span>`);
 
-  // Animated plane
+  // Animated airplane following linear flight path with dynamic heading orientation
+  var initHeading=arc.length>1?getHeading(arc[0],arc[1]):0;
+  var planeHtml=`<div id="sim-plane" style="width:32px;height:32px;transform:rotate(`+initHeading.toFixed(1)+`deg);transform-origin:center center;transition:transform .12s linear;"><svg width="32" height="32" viewBox="0 0 24 24" fill="#fbbf24" style="filter:drop-shadow(0 0 6px #fbbf24) drop-shadow(0 0 12px #f59e0b);display:block;"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>`;
   var planeMkr=L.marker(arc[0],{{icon:L.divIcon({{
-    html:`<div style="font-size:28px;line-height:1;animation:planeFly 1.5s ease-in-out infinite;transform:rotate(45deg);">&#x2708;&#xFE0F;</div>`,
-    className:"",iconSize:[30,30],iconAnchor:[15,15]}}),zIndexOffset:1000}}).addTo(map);
+    html:planeHtml,
+    className:"",iconSize:[32,32],iconAnchor:[16,16]}}),zIndexOffset:1000}}).addTo(map);
+
   var step=0;
-  (function fly(){{step=(step+1)%arc.length;planeMkr.setLatLng(arc[step]);
-    setTimeout(fly,(step<5||step>arc.length-5)?170:72);
+  (function fly(){{
+    step=(step+1)%arc.length;
+    var curr=arc[step];
+    var next=arc[(step+1)%arc.length];
+    planeMkr.setLatLng(curr);
+    var el=document.getElementById("sim-plane");
+    if(el && next){{
+      var h=getHeading(curr,next);
+      el.style.transform="rotate("+h.toFixed(1)+"deg)";
+    }}
+    setTimeout(fly,(step<5||step>arc.length-5)?150:65);
   }})();
 </script>
 </body>
