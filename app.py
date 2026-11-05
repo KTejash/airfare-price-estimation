@@ -338,7 +338,11 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
       <span style="color:#94a3b8;">approx 1.5-2 hr layover</span>`);
   ['Leg 1','Leg 2'].forEach(function(lbl,i){{
     var midPt=i===0?leg1[Math.floor(leg1.length/2)]:leg2[Math.floor(leg2.length/2)];
-    L.marker(midPt,{{icon:L.divIcon({{html:`<div style="background:rgba(10,15,30,.9);color:#fbbf24;border:1.5px solid #fbbf24;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;pointer-events:none;">` + lbl + `</div>`,className:'',iconAnchor:[32,12]}}),interactive:false,zIndexOffset:400}}).addTo(map);
+    var legHtml = `<div class="flight-dist-pill" style="border-color:#fbbf24;box-shadow:0 4px 18px rgba(0,0,0,0.85),0 0 14px rgba(251,191,36,0.6);">` +
+      `<span class="ico">&#x2708;</span>` +
+      `<span class="dst" style="color:#fbbf24;">` + lbl + `</span>` +
+    `</div>`;
+    L.marker(midPt,{{icon:L.divIcon({{html:legHtml,className:'',iconSize:[0,0],iconAnchor:[0,0]}}),interactive:false,zIndexOffset:450}}).addTo(map);
   }});
 """
         info_stop = f"<div class='row' style='color:#f59e0b;'>&#x1F504; 1-Stop via {scode}</div>"
@@ -350,7 +354,13 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
   L.polyline(arc,{{color:'#38bdf8',weight:7, opacity:0.25}}).addTo(map);
   L.polyline(arc,{{color:'#fbbf24',weight:3, opacity:1.0,dashArray:'12 7'}}).addTo(map);
   var mid=arc[Math.floor(arc.length/2)];
-  L.marker(mid,{{icon:L.divIcon({{html:`<div style="background:rgba(10,15,30,.88);color:#fbbf24;border:1.5px solid #fbbf24;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap;pointer-events:none;">&#x2708; {distance_km} km | {duration_hrs} hrs</div>`,className:'',iconAnchor:[80,12]}}),interactive:false,zIndexOffset:500}}).addTo(map);
+  var distBadgeHtml = `<div class="flight-dist-pill">` +
+    `<span class="ico">&#x2708;</span>` +
+    `<span class="dst">{distance_km} km</span>` +
+    `<span class="sep">&bull;</span>` +
+    `<span class="dur">{duration_hrs} hrs</span>` +
+  `</div>`;
+  L.marker(mid,{{icon:L.divIcon({{html:distBadgeHtml,className:'',iconSize:[0,0],iconAnchor:[0,0]}}),interactive:false,zIndexOffset:650}}).addTo(map);
 """
         info_stop = "<div class='row' style='color:#34d399;'>&#x2705; Direct non-stop</div>"
 
@@ -364,9 +374,20 @@ def generate_google_maps_html(src_info, dst_info, distance_km, duration_hrs,
   *{{box-sizing:border-box;margin:0;padding:0;}}
   body{{background:#0f172a;font-family:Segoe UI,sans-serif;}}
   #map{{width:100%;height:480px;border-radius:12px;border:2px solid #1e40af;box-shadow:0 8px 32px rgba(0,0,0,.7);}}
-  .info-box{{position:absolute;bottom:16px;left:16px;z-index:1000;background:rgba(10,15,30,.93);
-    border:1px solid #1e40af;border-radius:10px;padding:10px 14px;font-size:12px;
-    color:#f8fafc;min-width:180px;backdrop-filter:blur(8px);pointer-events:none;}}
+  .info-box{{position:absolute;bottom:18px;left:18px;z-index:1000;background:rgba(10,15,30,.95);
+    border:1.5px solid #38bdf8;border-radius:12px;padding:12px 16px;font-size:13px;
+    color:#f8fafc;min-width:210px;backdrop-filter:blur(10px);
+    box-shadow:0 8px 24px rgba(0,0,0,.8),0 0 12px rgba(56,189,248,.3);pointer-events:none;}}
+  .flight-dist-pill{{background:linear-gradient(135deg,rgba(15,23,42,.96) 0%,rgba(30,58,138,.94) 100%)!important;
+    border:2.5px solid #38bdf8!important;border-radius:30px!important;padding:7px 18px!important;
+    box-shadow:0 4px 22px rgba(0,0,0,.9),0 0 18px rgba(56,189,248,.75)!important;color:#fff!important;
+    white-space:nowrap!important;pointer-events:none!important;display:inline-flex!important;
+    align-items:center!important;gap:9px!important;transform:translate(-50%,-50%)!important;
+    font-family:'Segoe UI',system-ui,sans-serif!important;}}
+  .flight-dist-pill .ico{{font-size:17px;color:#fbbf24;filter:drop-shadow(0 0 5px #f59e0b);}}
+  .flight-dist-pill .dst{{color:#ffffff;font-weight:900;font-size:15px;letter-spacing:0.4px;}}
+  .flight-dist-pill .sep{{color:#64748b;font-weight:400;font-size:13px;}}
+  .flight-dist-pill .dur{{color:#38bdf8;font-weight:900;font-size:15px;letter-spacing:0.4px;}}
   .info-box b{{color:#38bdf8;}} .row{{margin:3px 0;}}
   .leaflet-popup-content-wrapper{{background:#1e293b!important;color:#f8fafc!important;
     border-radius:10px!important;border:1px solid #3b82f6!important;font-size:13px!important;}}
